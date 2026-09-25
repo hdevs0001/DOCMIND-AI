@@ -28,3 +28,22 @@ QUERYING STAGES NEED :
 2. ROUTERS
 3. NODE POSTPROCESSORS ( takes in a set of retrieved nodes and applies transformations, filtering or re-ranking logic to them)
 4. RESPONSE SYNTHESIZERS (a response synthesizer generates a response from a LLM using a user query and a given set of retrieved text chunks)
+
+
+NOW LET ME EXPLAIN IT IN MY WORDS : (TO CHECK IF I UNDERSTAND OR NOT )
+
+HERE IS THE FLOW FIRST:
+1. DOUCMENT
+2. CHUNKING
+3. EMBEDDINGS
+4. VECTOR DATABASE
+5. RETRIEVAL
+6. LLM --> ANSWER
+
+step1 is the document so you get the document for the user 
+step2 is the chunking this means u have to split the document into paragraph,sentences or letter because you can not store all the data coming from the document in one chunk you have to break it based on the document 
+step3 is embeddings this is simple the llm will generate the numerical representation of that chunks which u call the embedding or vector data 
+step4 so to get rid of the problem of re-indexing we will store the chunks into vector database 
+step5 is reterival or getting the data from the database using query 
+step6 then feed that data to the llm and based on the deafult prompt set by the engineer it will answer to the user .
+
