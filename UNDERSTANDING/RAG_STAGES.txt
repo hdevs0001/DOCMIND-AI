@@ -1,0 +1,30 @@
+so there are five stages for page which are :
+1. LOADING  =  this refers to getting your data from where it live like pdf ,text file etc
+2.  INDEXING =  this means creating a data structure that allows for querying the data . it the strategies to make it easy to accurately find contextually relevant data.
+3. STORING =  once your data is indexed , you want to store it somewhere so that u dont have to re-index it again and again.
+4. QUERYING  = this simple means querying your data structure .
+5. EVALUATION(fancy word EVALS) = It provides objective measures of how accurate ,faithful and fast your responses to quries are .
+
+LOADING ---> INDEXING ---> STORING ---> QUERYING ---> EVALUATING
+
+SO FROM THESE FIVE THE IMPORTANT ONES I THINK IS :
+1. LOADING 
+2. INDEXING
+3. QUERYING
+
+STORING and EVALUATING  i think is not important because basically storing you do in vector database if you are not able to LOAD the document how you will store it , if you store it then what strategies you use to QUERY that data .
+
+LOADING STAGES NEED : 
+1. DOCUMENTS (is a container around and data source like pdf)
+2. NODES (is the atomic unit of data in LlamaIndex and represents "chunk" of a source DOUCMENT and NODES)
+3. CONNECTORS  (called as reader ingest the data form different data source and data formats)
+
+INDEXING STAGES NEED: 
+1. INDEXES (index that data to reterive the data easily )
+2. EMBEDDINGS (so LLM generates the numerical representation of data called embeddings)
+
+QUERYING STAGES NEED : 
+1. RETRIEVERS (A retriever defines how to efficently retreive releveant context of chunk )
+2. ROUTERS
+3. NODE POSTPROCESSORS ( takes in a set of retrieved nodes and applies transformations, filtering or re-ranking logic to them)
+4. RESPONSE SYNTHESIZERS (a response synthesizer generates a response from a LLM using a user query and a given set of retrieved text chunks)
