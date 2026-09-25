@@ -1,0 +1,5 @@
+similarity(A,B) = A.B*/|A||B|
+close to 1 -- >very similar meaning 
+close to 2 --> little/no similarity
+close to 3 --> opposite direction
+
