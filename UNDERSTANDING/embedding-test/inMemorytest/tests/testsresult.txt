@@ -1,0 +1,107 @@
+
+=== DocMind AI RAG ===
+
+Ask a question (type 'exit' to quit): What is the round-trip efficiency range for hydrogen-based storage?
+
+Searching...
+
+Retrieved chunks:
+
+1. Similarity: 0.7103
+   us electricity to split water into hydrogen and oxygen through electrolysis, storing the hydrogen in tanks or underground caverns and later converting it back to electricity through a fuel cell or a hydrogen-capable gas turbine. The round trip through electrolysis, storage, and reconversion is the least efficient of the technologies discussed in this report, with round-trip efficiency typically falling between 30 and 45 percent, because energy is lost at both the electrolysis and the reconversio
+
+2. Similarity: 0.6955
+   s, thermal storage, and hydrogen are expected to capture a growing share of new capacity specifically in the four-hour-and-longer segment as renewable penetration increases and grids require more sustained shifting of energy across the day. Summary Table Notes Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from under four hours for lithium-ion up to weeks
+
+3. Similarity: 0.6641
+   the range of engineering approaches being tested as the addressable market for multi-hour storage continues to expand alongside renewable generation. 9. Glossary Round-trip efficiency: the percentage of energy put into a storage system that can later be retrieved, accounting for all conversion losses. Duration: the number of hours a storage system can discharge continuously at its rated power before depleting its stored energy. Power rating: the maximum rate, in megawatts, at which a storage sys
+
+Generating answer...
+
+> Answer:
+According to Chunk 1, the round-trip efficiency range for hydrogen-based storage is typically between 30 and 45 percent.
+
+Ask a question (type 'exit' to quit): How long does it take to recharge the Bath County pumped storage station?
+
+Searching...
+
+Retrieved chunks:
+
+1. Similarity: 0.6421
+   the largest pumped hydro facility in the world by generating capacity, at roughly 3,003 megawatts. The station uses a lower reservoir on the Back Creek and an upper reservoir roughly 1,260 feet higher in elevation, connected by a headrace tunnel more than a mile long. At full output, the station can discharge for approximately eleven hours before the upper reservoir is depleted, and it takes roughly six hours of pumping to fully recharge it. The facility is primarily used to balance nuclear and
+
+2. Similarity: 0.6056
+   or months for hydrogen in underground caverns. Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale, flow batteries and molten salt thermal storage are commercially proven but deployed at smaller scale, and adiabatic compressed air and grid-scale hydrogen reconversion remain in earlier stages of commercial deployment as of the mid-2020s. 8. Case Studies 8.1 Bath County Pumped Storage Station (Virginia, USA) Commissioned in 1985, Bath County remains
+
+3. Similarity: 0.5684
+   umped hydro facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100 megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can be recovered on the way back down. Construction timelines are long, often exceeding a decade once permitting and environmental review are included, and the technology requires specific topography: a significant elevation difference between two reservoirs within a manageable distance of one another. Bec
+
+Generating answer...
+
+Answer:
+It takes roughly six hours of pumping to fully recharge it.
+
+Ask a question (type 'exit' to quit): Which storage technology would you choose for smoothing solar output over a few hours, and which for seasonal storage, and why?
+
+Searching...
+
+Retrieved chunks:
+
+1. Similarity: 0.6537
+   teries currently offer the best combination of cost, efficiency, and fast response. For four-to-twelve-hour applications, such as shifting solar output from midday into the evening demand peak, flow batteries and, where geography allows, pumped hydro become increasingly competitive because their costs scale more favorably with duration. For storage durations extending beyond a day, into multi-day or seasonal timeframes, only compressed air, large thermal systems, and hydrogen currently offer pla
+
+2. Similarity: 0.6357
+   and most operating hydrogen storage facilities serve industrial feedstock or transport fuel markets rather than electricity reconversion. 7. Comparing and Choosing Between Technologies Utilities and grid planners generally select a storage technology based on the required discharge duration, since no single technology is cost-optimal across all durations. For sub-four-hour applications such as frequency regulation, voltage support, and smoothing short-term renewable variability, lithium-ion bat
+
+3. Similarity: 0.6108
+   ps supply. No single storage technology dominates every use case. Instead, a handful of distinct approaches have matured over the past two decades, each with its own combination of cost, duration, efficiency, and siting requirements. This report surveys six of the most widely deployed categories: pumped hydro storage, lithium-ion batteries, flow batteries, compressed air energy storage, thermal storage, and hydrogen-based storage. It closes with a comparative discussion of how utilities choose a
+
+Generating answer...
+
+Answer:
+According to the context:
+
+*   **Smoothing solar output over a few hours (four-to-twelve-hour applications):** teries currently offer the best combination of cost, efficiency, and fast response.
+*   **Seasonal storage:** For storage durations extending beyond a day, into multi-day or seasonal timeframes, only compressed air, large thermal systems, and hydrogen currently offer pla
+
+Ask a question (type 'exit' to quit): What is the round-trip efficiency of CAES paired with concentrated solar power?
+
+Searching...
+
+Retrieved chunks:
+
+1. Similarity: 0.6911
+   ioned in 1991, though a wave of newer projects using above-ground pressure vessels or repurposed geological formations has entered development since 2020. Traditional diabatic CAES loses a significant portion of the compression heat to the atmosphere and must burn natural gas to reheat the air before it expands through the turbine, which limits round-trip efficiency to roughly 40 to 55 percent and ties the technology's emissions profile to a fossil fuel input. Newer adiabatic and isothermal CAES
+
+2. Similarity: 0.6008
+   the range of engineering approaches being tested as the addressable market for multi-hour storage continues to expand alongside renewable generation. 9. Glossary Round-trip efficiency: the percentage of energy put into a storage system that can later be retrieved, accounting for all conversion losses. Duration: the number of hours a storage system can discharge continuously at its rated power before depleting its stored energy. Power rating: the maximum rate, in megawatts, at which a storage sys
+
+3. Similarity: 0.5973
+   designs capture and store the heat of compression separately and reuse it during discharge, avoiding the need for supplemental gas combustion and pushing round-trip efficiency toward 60 to 70 percent, though few of these designs have yet been proven at full commercial scale. 5. Thermal Energy Storage Thermal storage systems store energy as heat or cold rather than as electricity directly, which is later converted back to electricity or used directly for heating and cooling purposes. Molten salt
+
+Generating answer...
+
+Answer:
+I do not have enough information.
+
+Ask a question (type 'exit' to quit): What is Bath County's generating capacity and how much higher is its upper reservoir?
+
+Searching...
+
+Retrieved chunks:
+
+1. Similarity: 0.4990
+   the largest pumped hydro facility in the world by generating capacity, at roughly 3,003 megawatts. The station uses a lower reservoir onthe Back Creek and an upper reservoir roughly 1,260 feet higher in elevation, connected by a headrace tunnel more than a mile long. At fulloutput, the station can discharge for approximately eleven hours before the upper reservoir is depleted, and it takes roughly six hours of pumping to fully recharge it. The facility is primarily used to balance nuclear and
+
+2. Similarity: 0.4253
+   or months for hydrogen in underground caverns. Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale, flow batteries and molten salt thermal storage are commercially proven but deployed at smaller scale, and adiabatic compressed air and grid-scale hydrogen reconversion remain in earlier stages of commercial deployment as of the mid-2020s. 8. Case Studies 8.1 Bath County Pumped Storage Station (Virginia, USA) Commissioned in 1985, Bath County remains
+
+3. Similarity: 0.4216
+   coal generation in the surrounding region rather than to firm renewables, since it predates the modern wind and solar buildout by two decades, illustrating that pumped hydro's core value proposition, shifting large blocks of energy across many hours, has outlasted the specific generation mix it was originally built to balance. 8.2 Hornsdale Power Reserve (South Australia) Hornsdale, commissioned in 2017 and expanded twice since, was among the first grid-scale lithium-ion battery installations to
+
+Generating answer...
+
+Answer:
+Bath County’s generating capacity is roughly 3,003 megawatts. Its upper reservoir is roughly 1,260 feet higher in elevation.
+
+Ask a question (type 'exit' to quit): 
