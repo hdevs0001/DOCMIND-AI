@@ -1,0 +1,24 @@
+so how we are storing chunk in the embedding-test/inMemorytest/data
+ {
+    "id": 1,
+    "text": "Grid-Scale Energy Storage: A Technical Overview Prepared as a reference document for chunking and retrieval testing As power grids around the world add growing shares of wind and solar generation,",
+    "embedding": [
+      -0.0005676993,
+      0.021842325,
+      0.007978095,
+      0.01816221,
+      -0.0028018341,
+      0.04194622,
+      0.03808219,
+    ]
+
+ }
+
+ So what metadata will do it will add addition information about that text/embedding/chunk
+Like:
+metadata:{
+
+  page:4,
+  section:"8.1",
+  heading: "Bath county Pumped Storage Station"
+}
