@@ -74,25 +74,76 @@ const pdf = await getDocumentProxy(new Uint8Array(pdfBuffer));
 const { text, totalPages } = await extractText(pdf, {
   mergePages: true,
 });
+// console.log(JSON.stringify(text.slice(0, 2000)));
 
-const cleanText = text.replace(/\s+/g, " ").trim();
+// const cleanText = text.replace(/\s+/g, " ").trim();
+
+const cleanedText = text
+  .replace(/[ \t]+/g, " ")
+  .replace(/\n+/g, "\n")
+  .trim();
+
 console.log(`PDF pages: ${totalPages}`);
 console.log(`Extracted characters: ${text.length}`);
 
 // Simple chunking for our first test
-const chunkSize = 500;
+// const chunkSize = 500;
+// const chunks = [];
+
+// for (let i = 0; i < text.length; i += chunkSize) {
+//   const chunk = cleanText.slice(i, i + chunkSize).trim();
+
+//   if (chunk) {
+//     chunks.push(chunk);
+//   }
+// }
+const sections = cleanedText
+  .split(/\n(?=\d+(?:\.\d+)?\.\s)/)
+  .map((section) => section.trim())
+  .filter(Boolean);
+
+console.log(`Detected sections: ${sections.length}`);
+
 const chunks = [];
+const MAX_WORDS = 180;
+const OVERLAP_WORDS = 30;
 
-for (let i = 0; i < text.length; i += chunkSize) {
-  const chunk = cleanText.slice(i, i + chunkSize).trim();
+for (const section of sections) {
+  // Split section into sentences
+  const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
 
-  if (chunk) {
-    chunks.push(chunk);
+  let currentChunk = [];
+
+  for (const sentence of sentences) {
+    const words = sentence.trim().split(/\s+/);
+
+    if (
+      currentChunk.length > 0 &&
+      currentChunk.length + words.length > MAX_WORDS
+    ) {
+      chunks.push(currentChunk.join(" "));
+
+      // Keep the last 30 words for overlap
+      currentChunk = currentChunk.slice(-OVERLAP_WORDS);
+    }
+
+    currentChunk.push(...words);
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk.join(" "));
   }
 }
-
+console.log(`Detected sections: ${sections.length}`);
 console.log(`Created ${chunks.length} chunks.`);
 
+console.log(`Created ${chunks.length} chunks.`);
+console.log("\n--- CHUNK PREVIEW ---");
+
+chunks.slice(0, 5).forEach((chunk, index) => {
+  console.log(`\nChunk ${index + 1}:`);
+  console.log(chunk);
+});
 // Generate embeddings
 const results = [];
 

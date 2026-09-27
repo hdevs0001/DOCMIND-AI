@@ -1,0 +1,20 @@
+1. Single-fact retrieval (easy)
+"What is the round-trip efficiency range for hydrogen-based storage?"
+→ Expect: 30 to 45 percent. This tests whether your chunker keeps the number attached to "hydrogen" and doesn't split it into a stray fragment.
+--------------------------------------------------------------------------------------------
+2. Fact buried mid-paragraph (medium)
+"How long does it take to recharge the Bath County pumped storage station?"
+→ Expect: about six hours, found deep inside section 8.1 — good test of whether your chunks are large enough to retrieve a fact that isn't in a topic sentence.
+--------------------------------------------------------------------------------------------
+3. Cross-section reasoning (hard — tests retrieval, not just one chunk)
+"Which storage technology would you choose for smoothing solar output over a few hours, and which for seasonal storage, and why?"
+→ Expect a synthesized answer pulling from section 2 (lithium-ion) and section 6 (hydrogen), plus the reasoning in section 7. This checks whether your pipeline can retrieve and combine multiple non-adjacent chunks correctly.
+--------------------------------------------------------------------------------------------
+4. Distractor test (checks for hallucination/false retrieval)
+"What is the round-trip efficiency of CAES paired with concentrated solar power?"
+→ This is a trick — CAES and molten salt/concentrated solar are two different sections (4 and 5). A good pipeline should either say the document doesn't combine those two, or correctly cite each separately rather than blending numbers from both sections into a false combined answer.
+--------------------------------------------------------------------------------------------
+
+5. Numeric precision test
+"What is Bath County's generating capacity and how much higher is its upper reservoir?"
+→ Expect: roughly 3,003 megawatts and about 1,260 feet — tests whether embeddings preserve numeric specificity instead of just topical similarity.
