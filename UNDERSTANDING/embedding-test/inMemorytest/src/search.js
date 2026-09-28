@@ -161,6 +161,7 @@ async function search(question) {
       id: item.id,
       text: item.text,
       similarity,
+      metadata: item.metadata,
     };
   });
 
@@ -175,7 +176,31 @@ async function generateAnswer(question, topChunks) {
   // Convert retrieved chunks into context
   const context = topChunks
     .map((chunk, index) => {
-      return `[Chunk ${index + 1}]\n${chunk.text}`;
+      const metadata = chunk.metadata;
+
+      let metadataText = "";
+
+      if (metadata?.page != null) {
+        metadataText += `Page: ${metadata.page}\n`;
+      }
+
+      if (metadata?.mainHeading) {
+        metadataText += `Main heading: ${metadata.mainHeading}\n`;
+      }
+
+      if (metadata?.subheading) {
+        metadataText += `Subheading: ${metadata.subheading}\n`;
+      }
+
+      if (metadata?.subPart) {
+        metadataText += `Sub-part: ${metadata.subPart}\n`;
+      }
+
+      return `[Chunk ${index + 1}]
+Metadata:
+${metadataText}
+Text:
+${chunk.text}`;
     })
     .join("\n\n");
 
@@ -185,8 +210,25 @@ async function generateAnswer(question, topChunks) {
     messages: [
       {
         role: "system",
-        content:
-          "Answer the user's question using only the provided context. If the answer is not in the context, say you do not have enough information.",
+        content: `
+You are answering questions about a document.
+
+Use only the provided context.
+
+The context contains:
+- Text: the actual document content.
+- Metadata: structural information about where the text appears in the document.
+  - Page = PDF page number
+  - Main heading = highest-level section
+  - Subheading = subsection
+  - Sub-part = lower-level subsection
+
+Use the text to answer factual questions.
+Use the metadata when the question asks about the document's structure, section, subsection, or location.
+
+If the answer cannot be found in the provided context, say:
+"I do not have enough information in the provided context."
+`,
       },
       {
         role: "user",
@@ -226,7 +268,26 @@ async function askQuestion() {
 
       topChunks.forEach((chunk, index) => {
         console.log(`${index + 1}. Similarity: ${chunk.similarity.toFixed(4)}`);
-        console.log(`   ${chunk.text}\n`);
+
+        console.log("   Metadata:");
+
+        if (chunk.metadata?.page != null) {
+          console.log(`     Page: ${chunk.metadata.page}`);
+        }
+
+        if (chunk.metadata?.mainHeading) {
+          console.log(`     Main heading: ${chunk.metadata.mainHeading}`);
+        }
+
+        if (chunk.metadata?.subheading) {
+          console.log(`     Subheading: ${chunk.metadata.subheading}`);
+        }
+
+        if (chunk.metadata?.subPart) {
+          console.log(`     Sub-part: ${chunk.metadata.subPart}`);
+        }
+
+        console.log(`   Text: ${chunk.text}\n`);
       });
 
       // Generate answer using retrieved chunks

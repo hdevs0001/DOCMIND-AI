@@ -172,6 +172,7 @@
 // console.log(`Pages: ${totalPages}`);
 // console.log(`Chunks: ${chunks.length}`);
 // console.log(`Saved to: ${OUTPUT_PATH}`);
+
 import ollama from "ollama";
 import fs from "fs";
 import { extractText, getDocumentProxy } from "unpdf";
@@ -182,44 +183,55 @@ const OUTPUT_PATH = "./data/embeddings.json";
 const MAX_WORDS = 180;
 const OVERLAP_SENTENCES = 2;
 
-
 // --------------------------------------------------
 // 1. Extract PDF page by page
 // --------------------------------------------------
 
 const pdfBuffer = fs.readFileSync(PDF_PATH);
 
-const pdf = await getDocumentProxy(
-  new Uint8Array(pdfBuffer)
-);
+const pdf = await getDocumentProxy(new Uint8Array(pdfBuffer));
 
 const { totalPages, text } = await extractText(pdf, {
-  mergePages: false
+  mergePages: false,
 });
 
 console.log(`PDF pages: ${totalPages}`);
-
 
 // --------------------------------------------------
 // 2. Detect heading level
 // --------------------------------------------------
 
 function getHeadingLevel(line) {
-  const match = line.match(/^(\d+(?:\.\d+)*)\.\s+(.+)$/);
+  // --------------------------------------------
+  // 1.1 / 1.2 / 8.1 / 8.2 style
+  // --------------------------------------------
+  const nestedMatch = line.match(/^(\d+(?:\.\d+)+)\s+(.+)$/);
 
-  if (!match) {
-    return null;
+  if (nestedMatch) {
+    const number = nestedMatch[1];
+
+    return {
+      level: number.split(".").length,
+      number,
+      title: nestedMatch[2].trim(),
+    };
   }
 
-  const number = match[1];
+  // --------------------------------------------
+  // 1. / 2. / 8. style
+  // --------------------------------------------
+  const mainMatch = line.match(/^(\d+)\.\s+(.+)$/);
 
-  return {
-    level: number.split(".").length,
-    number,
-    title: match[2].trim()
-  };
+  if (mainMatch) {
+    return {
+      level: 1,
+      number: mainMatch[1],
+      title: mainMatch[2].trim(),
+    };
+  }
+
+  return null;
 }
-
 
 // --------------------------------------------------
 // 3. Split page text into lines
@@ -231,7 +243,6 @@ function cleanLines(pageText) {
     .map((line) => line.trim())
     .filter(Boolean);
 }
-
 
 // --------------------------------------------------
 // 4. Build document hierarchy
@@ -269,11 +280,10 @@ function saveChunk() {
 
       subheading: currentSubheading,
 
-      subPart: currentSubPart
-    }
+      subPart: currentSubPart,
+    },
   });
 }
-
 
 // --------------------------------------------------
 // 5. Sentence-aware chunking
@@ -283,35 +293,26 @@ function addText(text, pageNumber) {
   currentPage = pageNumber;
 
   // Split text into sentences.
-  const sentences =
-    text.match(/[^.!?]+[.!?]+/g) || [text];
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
 
   for (const sentence of sentences) {
     const words = sentence.trim().split(/\s+/);
 
-    const currentWordCount = currentSentences
-      .join(" ")
-      .split(/\s+/).length;
+    const currentWordCount = currentSentences.join(" ").split(/\s+/).length;
 
-    const newWordCount =
-      currentWordCount + words.length;
+    const newWordCount = currentWordCount + words.length;
 
-    if (
-      currentSentences.length > 0 &&
-      newWordCount > MAX_WORDS
-    ) {
+    if (currentSentences.length > 0 && newWordCount > MAX_WORDS) {
       saveChunk();
 
       // Keep the last few complete sentences
       // as overlap.
-      currentSentences =
-        currentSentences.slice(-OVERLAP_SENTENCES);
+      currentSentences = currentSentences.slice(-OVERLAP_SENTENCES);
     }
 
     currentSentences.push(sentence.trim());
   }
 }
-
 
 // --------------------------------------------------
 // 6. Process every PDF page
@@ -323,7 +324,6 @@ for (let pageIndex = 0; pageIndex < text.length; pageIndex++) {
   const lines = cleanLines(text[pageIndex]);
 
   for (const line of lines) {
-
     const heading = getHeadingLevel(line);
 
     // ----------------------------------------------
@@ -331,50 +331,42 @@ for (let pageIndex = 0; pageIndex < text.length; pageIndex++) {
     // ----------------------------------------------
 
     if (heading?.level === 1) {
-
       saveChunk();
+      currentSentences = [];
 
-      currentMainHeading =
-        `${heading.number}. ${heading.title}`;
-
+      currentMainHeading = `${heading.number}. ${heading.title}`;
       currentSubheading = null;
       currentSubPart = null;
 
       continue;
     }
 
-
     // ----------------------------------------------
     // Subheading
     // ----------------------------------------------
 
     if (heading?.level === 2) {
-
       saveChunk();
+      currentSentences = [];
 
-      currentSubheading =
-        `${heading.number}. ${heading.title}`;
-
+      currentSubheading = `${heading.number} ${heading.title}`;
       currentSubPart = null;
 
       continue;
     }
-
 
     // ----------------------------------------------
     // Sub-part
     // ----------------------------------------------
 
     if (heading?.level >= 3) {
-
       saveChunk();
+      currentSentences = [];
 
-      currentSubPart =
-        `${heading.number}. ${heading.title}`;
+      currentSubPart = `${heading.number} ${heading.title}`;
 
       continue;
     }
-
 
     // ----------------------------------------------
     // Normal text
@@ -384,10 +376,8 @@ for (let pageIndex = 0; pageIndex < text.length; pageIndex++) {
   }
 }
 
-
 // Save final chunk
 saveChunk();
-
 
 // --------------------------------------------------
 // 7. Generate embeddings
@@ -396,16 +386,13 @@ saveChunk();
 const results = [];
 
 for (let i = 0; i < chunks.length; i++) {
-
   const chunk = chunks[i];
 
-  console.log(
-    `Generating embedding ${i + 1}/${chunks.length}...`
-  );
+  console.log(`Generating embedding ${i + 1}/${chunks.length}...`);
 
   const response = await ollama.embed({
     model: "qwen3-embedding:4b",
-    input: chunk.text
+    input: chunk.text,
   });
 
   results.push({
@@ -415,23 +402,19 @@ for (let i = 0; i < chunks.length; i++) {
 
     embedding: response.embeddings[0],
 
-    metadata: chunk.metadata
+    metadata: chunk.metadata,
   });
 }
-
 
 // --------------------------------------------------
 // 8. Save
 // --------------------------------------------------
 
 fs.mkdirSync("./data", {
-  recursive: true
+  recursive: true,
 });
 
-fs.writeFileSync(
-  OUTPUT_PATH,
-  JSON.stringify(results, null, 2)
-);
+fs.writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2));
 
 console.log("\nDone!");
 
