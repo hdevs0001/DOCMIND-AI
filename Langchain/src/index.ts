@@ -188,56 +188,139 @@ console.log("Vector store ready!");
 // 5. Ask a question
 // ------------------------------------
 
-const question = "What is the round-trip efficiency of nuclear power plants?";
+// const question = "What is the round-trip efficiency of nuclear power plants?";
+
+// // ------------------------------------
+// // 6. Similarity search
+// // ------------------------------------
+
+// const results = await vectorStore.similaritySearchWithScore(question, 3);
+// const context = results
+//   .map(([document]) => document.pageContent)
+//   .join("\n\n --- \n\n");
+
+// // ------------------------------------
+// // 7. Show results
+// // ------------------------------------
+
+// const prompt = `
+// You are a helpful question-answering assistant.
+
+// Answer the question using only the provided context.
+
+// If the answer is not present in the context, say:
+// "I do not have enough information in the provided context."
+
+// Context:
+// ${context}
+
+// Question:
+// ${question}
+
+// Answer:
+// `;
+// // -----------------------------
+// // invoking the llm
+// // -----------------------------
+// const response = await llm.invoke(prompt);
+
+// console.log("\n========== SEARCH RESULTS ==========\n");
+
+// results.forEach(([document, score], index) => {
+//   console.log(`\n===== RESULT ${index + 1} =====`);
+
+//   console.log("\nScore:", score);
+
+//   console.log("\nContent:\n");
+
+//   console.log(document.pageContent);
+
+//   console.log("\nMetadata:\n");
+
+//   console.log(document.metadata);
+// });
+// console.log("\n ================ ANSWER ================= \n");
+// console.log(response.content);
+// ------------------------------------
+// 5. Retrieval evaluation dataset
+// ------------------------------------
+
+const evaluationSet = [
+  {
+    question: "What is the round-trip efficiency of lithium-ion batteries?",
+    expectedPage: 2,
+  },
+  {
+    question: "What is the round-trip efficiency of pumped hydro storage?",
+    expectedPage: 1,
+  },
+  {
+    question: "What is the round-trip efficiency of hydrogen storage?",
+    expectedPage: 3,
+  },
+  {
+    question: "Where is Bath County discussed?",
+    expectedPage: 4,
+  },
+];
 
 // ------------------------------------
-// 6. Similarity search
+// 6. Run retrieval evaluation
 // ------------------------------------
 
-const results = await vectorStore.similaritySearchWithScore(question, 3);
-const context = results
-  .map(([document]) => document.pageContent)
-  .join("\n\n --- \n\n");
+console.log("\n========== RETRIEVAL EVALUATION ==========\n");
+
+let hits = 0;
+
+for (const [index, test] of evaluationSet.entries()) {
+  console.log(`\n===== QUESTION ${index + 1} =====`);
+
+  console.log("Question:", test.question);
+
+  // Retrieve top 3 chunks
+  const results = await vectorStore.similaritySearchWithScore(test.question, 3);
+
+  // Get pages of retrieved chunks
+  const retrievedPages = results.map(
+    ([document]) => document.metadata.loc?.pageNumber,
+  );
+
+  console.log("Expected page:", test.expectedPage);
+  console.log("Retrieved pages:", retrievedPages);
+
+  // Check whether expected page appears in top 3
+  const hit = retrievedPages.includes(test.expectedPage);
+
+  if (hit) {
+    console.log("Result: ✅ HIT");
+    hits++;
+  } else {
+    console.log("Result: ❌ MISS");
+  }
+
+  // Show retrieved results
+  results.forEach(([document, score], resultIndex) => {
+    console.log(`\n--- Result ${resultIndex + 1} ---`);
+
+    console.log("Score:", score);
+
+    console.log("Page:", document.metadata.loc?.pageNumber);
+
+    console.log("Content:");
+
+    console.log(document.pageContent);
+  });
+}
 
 // ------------------------------------
-// 7. Show results
+// 7. Calculate Hit@3
 // ------------------------------------
 
-const prompt = `
-You are a helpful question-answering assistant.
+const totalQuestions = evaluationSet.length;
 
-Answer the question using only the provided context.
+const hitRate = (hits / totalQuestions) * 100;
 
-If the answer is not present in the context, say:
-"I do not have enough information in the provided context."
-
-Context:
-${context}
-
-Question:
-${question}
-
-Answer:
-`;
-// -----------------------------
-// invoking the llm
-// -----------------------------
-const response = await llm.invoke(prompt);
-
-console.log("\n========== SEARCH RESULTS ==========\n");
-
-results.forEach(([document, score], index) => {
-  console.log(`\n===== RESULT ${index + 1} =====`);
-
-  console.log("\nScore:", score);
-
-  console.log("\nContent:\n");
-
-  console.log(document.pageContent);
-
-  console.log("\nMetadata:\n");
-
-  console.log(document.metadata);
-});
-console.log("\n ================ ANSWER ================= \n");
-console.log(response.content);
+console.log("\n==========================================");
+console.log(`Hit@3: ${hits}/${totalQuestions}`);
+console.log(`Hit@3 Rate: ${hitRate.toFixed(1)}%`);
+console.log("==========================================");
