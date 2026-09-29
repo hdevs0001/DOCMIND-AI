@@ -246,10 +246,37 @@ console.log("Vector store ready!");
 // ------------------------------------
 
 const evaluationSet = [
+  // ------------------------------------
+  // Lithium-ion query variations
+  // ------------------------------------
   {
     question: "What is the round-trip efficiency of lithium-ion batteries?",
-    expectedPage: 2,
+    expectedPage: 1,
   },
+  {
+    question: "What is the round-trip efficiency of lithium-ion systems?",
+    expectedPage: 1,
+  },
+  {
+    question: "What percentage of energy can lithium-ion batteries recover?",
+    expectedPage: 1,
+  },
+  {
+    question: "What is the efficiency of lithium-ion battery storage?",
+    expectedPage: 1,
+  },
+  {
+    question: "What is the typical round-trip efficiency for lithium-ion?",
+    expectedPage: 1,
+  },
+  {
+    question: "How efficient are lithium-ion batteries for grid storage?",
+    expectedPage: 1,
+  },
+
+  // ------------------------------------
+  // Other technologies
+  // ------------------------------------
   {
     question: "What is the round-trip efficiency of pumped hydro storage?",
     expectedPage: 1,
@@ -258,6 +285,10 @@ const evaluationSet = [
     question: "What is the round-trip efficiency of hydrogen storage?",
     expectedPage: 3,
   },
+
+  // ------------------------------------
+  // Case study
+  // ------------------------------------
   {
     question: "Where is Bath County discussed?",
     expectedPage: 4,
@@ -270,17 +301,16 @@ const evaluationSet = [
 
 console.log("\n========== RETRIEVAL EVALUATION ==========\n");
 
-let hits = 0;
+let hitAt1Count = 0;
+let hitAt3Count = 0;
 
 for (const [index, test] of evaluationSet.entries()) {
   console.log(`\n===== QUESTION ${index + 1} =====`);
 
   console.log("Question:", test.question);
 
-  // Retrieve top 3 chunks
   const results = await vectorStore.similaritySearchWithScore(test.question, 3);
 
-  // Get pages of retrieved chunks
   const retrievedPages = results.map(
     ([document]) => document.metadata.loc?.pageNumber,
   );
@@ -288,17 +318,26 @@ for (const [index, test] of evaluationSet.entries()) {
   console.log("Expected page:", test.expectedPage);
   console.log("Retrieved pages:", retrievedPages);
 
-  // Check whether expected page appears in top 3
-  const hit = retrievedPages.includes(test.expectedPage);
+  // Hit@1
+  const hitAt1 = retrievedPages[0] === test.expectedPage;
 
-  if (hit) {
-    console.log("Result: ✅ HIT");
-    hits++;
+  // Hit@3
+  const hitAt3 = retrievedPages.includes(test.expectedPage);
+
+  if (hitAt1) {
+    console.log("Hit@1: ✅");
+    hitAt1Count++;
   } else {
-    console.log("Result: ❌ MISS");
+    console.log("Hit@1: ❌");
   }
 
-  // Show retrieved results
+  if (hitAt3) {
+    console.log("Hit@3: ✅");
+    hitAt3Count++;
+  } else {
+    console.log("Hit@3: ❌");
+  }
+
   results.forEach(([document, score], resultIndex) => {
     console.log(`\n--- Result ${resultIndex + 1} ---`);
 
@@ -313,14 +352,23 @@ for (const [index, test] of evaluationSet.entries()) {
 }
 
 // ------------------------------------
-// 7. Calculate Hit@3
+// 7. Calculate metrics
 // ------------------------------------
+// Show retrieved results
 
 const totalQuestions = evaluationSet.length;
 
-const hitRate = (hits / totalQuestions) * 100;
+const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
+const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
 
 console.log("\n==========================================");
-console.log(`Hit@3: ${hits}/${totalQuestions}`);
-console.log(`Hit@3 Rate: ${hitRate.toFixed(1)}%`);
+
+console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
+console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
+
+console.log("");
+
+console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
+console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
+
 console.log("==========================================");

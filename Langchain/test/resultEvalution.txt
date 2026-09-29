@@ -1,0 +1,513 @@
+Pages: 5
+Chunks: 20
+
+Creating vector store...
+Vector store ready!
+
+========== RETRIEVAL EVALUATION ==========
+
+
+===== QUESTION 1 =====
+Question: What is the round-trip efficiency of lithium-ion batteries?
+Expected page: 1
+Retrieved pages: [ 2, 1, 4 ]
+Hit@1: ❌
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.5490604830924974
+Page: 2
+Content:
+states are pumped through a stack where the electrochemical reaction occurs. Because energy
+capacity is determined by the size of the electrolyte tanks while power capacity is determined by
+the size of the reaction stack, flow batteries decouple duration from power rating in a way
+lithium-ion cannot: a utility can add hours of storage simply by installing larger tanks, without
+needing to add more stack hardware. This makes flow batteries economically attractive for
+four-to-twelve-hour duration applications, a range where lithium-ion costs scale less favorably.
+Round-trip efficiency is lower than lithium-ion, generally in the 65 to 80 percent range, and the
+technology has a lower energy density, meaning flow battery installations require significantly
+more land area per megawatt-hour than an equivalent lithium-ion system. Vanadium flow batteries
+also have an essentially unlimited cycle life compared to lithium-ion, since the electrolyte itself
+
+--- Result 2 ---
+Score: 0.5463751674682666
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+--- Result 3 ---
+Score: 0.540228006952273
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+===== QUESTION 2 =====
+Question: What is the round-trip efficiency of lithium-ion systems?
+Expected page: 1
+Retrieved pages: [ 1, 4, 1 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.5418422426316845
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+--- Result 2 ---
+Score: 0.5331319744101596
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+--- Result 3 ---
+Score: 0.5279680229224389
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+===== QUESTION 3 =====
+Question: What percentage of energy can lithium-ion batteries recover?
+Expected page: 1
+Retrieved pages: [ 4, 1, 1 ]
+Hit@1: ❌
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.4969497192363093
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+--- Result 2 ---
+Score: 0.47482191564825893
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+--- Result 3 ---
+Score: 0.47004185665054243
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+===== QUESTION 4 =====
+Question: What is the efficiency of lithium-ion battery storage?
+Expected page: 1
+Retrieved pages: [ 1, 4, 1 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.612262297450645
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+--- Result 2 ---
+Score: 0.5978358194128464
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+--- Result 3 ---
+Score: 0.5820566804175751
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+===== QUESTION 5 =====
+Question: What is the typical round-trip efficiency for lithium-ion?
+Expected page: 1
+Retrieved pages: [ 1, 4, 1 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.5520272093536864
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+--- Result 2 ---
+Score: 0.5442206467369192
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+--- Result 3 ---
+Score: 0.5323573268548463
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+===== QUESTION 6 =====
+Question: How efficient are lithium-ion batteries for grid storage?
+Expected page: 1
+Retrieved pages: [ 3, 1, 4 ]
+Hit@1: ❌
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.6104807308681677
+Page: 3
+Content:
+Utilities and grid planners generally select a storage technology based on the required discharge
+duration, since no single technology is cost-optimal across all durations. For sub-four-hour
+applications such as frequency regulation, voltage support, and smoothing short-term renewable
+variability, lithium-ion batteries currently offer the best combination of cost, efficiency, and fast
+response. For four-to-twelve-hour applications, such as shifting solar output from midday into the
+evening demand peak, flow batteries and, where geography allows, pumped hydro become
+increasingly competitive because their costs scale more favorably with duration. For storage
+durations extending beyond a day, into multi-day or seasonal timeframes, only compressed air,
+large thermal systems, and hydrogen currently offer plausible economics, since battery costs at
+that scale become prohibitive.
+
+--- Result 2 ---
+Score: 0.587424672241792
+Page: 1
+Content:
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+ten years, driven by steep cost declines that tracked the broader electric vehicle battery market.
+Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium
+iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its
+lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy
+density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95
+percent range, and response times are near-instantaneous, making the technology well suited to
+short-duration applications such as frequency regulation and smoothing the output of solar farms
+over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion
+
+--- Result 3 ---
+Score: 0.5613115334493841
+Page: 4
+Content:
+mid-2020s project that lithium-ion will continue to dominate new installations through the end of
+the decade by sheer volume, while longer-duration technologies including flow batteries, thermal
+storage, and hydrogen are expected to capture a growing share of new capacity specifically in the
+four-hour-and-longer segment as renewable penetration increases and grids require more
+sustained shifting of energy across the day.
+Summary Table Notes
+Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for
+hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from
+under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns.
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+
+===== QUESTION 7 =====
+Question: What is the round-trip efficiency of pumped hydro storage?
+Expected page: 1
+Retrieved pages: [ 1, 5, 1 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.6806536248544746
+Page: 1
+Content:
+deployed categories: pumped hydro storage, lithium-ion batteries, flow batteries, compressed air
+energy storage, thermal storage, and hydrogen-based storage. It closes with a comparative
+discussion of how utilities choose among them.
+1. Pumped Hydro Storage
+Pumped hydro storage (PHS) is the oldest and, by installed capacity, still the largest form of grid
+storage in the world, accounting for the great majority of global storage capacity measured in
+gigawatt-hours. The technology works by pumping water from a lower reservoir to an upper
+reservoir during periods of low electricity demand or high renewable output, then releasing that
+water back downhill through turbines when power is needed. A typical utility-scale pumped hydro
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+
+--- Result 2 ---
+Score: 0.6728982786803611
+Page: 5
+Content:
+up and down a graded track. These approaches aim to replicate the physics of pumped hydro,
+storing energy as gravitational potential energy, without requiring water or specific hilly
+topography. None have yet reached the scale of the six technologies discussed earlier in this
+report, and most remain in demonstration or early commercial phases, but they illustrate the range
+of engineering approaches being tested as the addressable market for multi-hour storage
+continues to expand alongside renewable generation.
+9. Glossary
+Round-trip efficiency: the percentage of energy put into a storage system that can later be
+retrieved, accounting for all conversion losses. Duration: the number of hours a storage system
+can discharge continuously at its rated power before depleting its stored energy. Power rating:
+the maximum rate, in megawatts, at which a storage system can charge or discharge,
+independent of how long it can sustain that rate. Energy arbitrage: the practice of charging
+
+--- Result 3 ---
+Score: 0.6673692356605225
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+===== QUESTION 8 =====
+Question: What is the round-trip efficiency of hydrogen storage?
+Expected page: 3
+Retrieved pages: [ 3, 5, 2 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.5944406571564289
+Page: 3
+Content:
+sometimes called 'sand batteries' when the storage medium is crushed rock or sand, which can
+reach temperatures exceeding 1,000 degrees Celsius and store energy at a fraction of the capital
+cost of batteries, though the stored heat is generally used for industrial process heat or district
+heating rather than being reconverted efficiently back into electricity.
+6. Hydrogen-Based Storage
+Hydrogen storage uses surplus electricity to split water into hydrogen and oxygen through
+electrolysis, storing the hydrogen in tanks or underground caverns and later converting it back to
+electricity through a fuel cell or a hydrogen-capable gas turbine. The round trip through
+electrolysis, storage, and reconversion is the least efficient of the technologies discussed in this
+report, with round-trip efficiency typically falling between 30 and 45 percent, because energy is lost
+at both the electrolysis and the reconversion stages. Despite this efficiency penalty, hydrogen is
+
+--- Result 2 ---
+Score: 0.5536291065303598
+Page: 5
+Content:
+up and down a graded track. These approaches aim to replicate the physics of pumped hydro,
+storing energy as gravitational potential energy, without requiring water or specific hilly
+topography. None have yet reached the scale of the six technologies discussed earlier in this
+report, and most remain in demonstration or early commercial phases, but they illustrate the range
+of engineering approaches being tested as the addressable market for multi-hour storage
+continues to expand alongside renewable generation.
+9. Glossary
+Round-trip efficiency: the percentage of energy put into a storage system that can later be
+retrieved, accounting for all conversion losses. Duration: the number of hours a storage system
+can discharge continuously at its rated power before depleting its stored energy. Power rating:
+the maximum rate, in megawatts, at which a storage system can charge or discharge,
+independent of how long it can sustain that rate. Energy arbitrage: the practice of charging
+
+--- Result 3 ---
+Score: 0.5338682963919666
+Page: 2
+Content:
+one in McIntosh, Alabama, commissioned in 1991, though a wave of newer projects using
+above-ground pressure vessels or repurposed geological formations has entered development
+since 2020. Traditional diabatic CAES loses a significant portion of the compression heat to the
+atmosphere and must burn natural gas to reheat the air before it expands through the turbine,
+which limits round-trip efficiency to roughly 40 to 55 percent and ties the technology's emissions
+profile to a fossil fuel input. Newer adiabatic and isothermal CAES designs capture and store the
+heat of compression separately and reuse it during discharge, avoiding the need for supplemental
+gas combustion and pushing round-trip efficiency toward 60 to 70 percent, though few of these
+designs have yet been proven at full commercial scale.
+5. Thermal Energy Storage
+
+===== QUESTION 9 =====
+Question: Where is Bath County discussed?
+Expected page: 4
+Retrieved pages: [ 4, 2, 1 ]
+Hit@1: ✅
+Hit@3: ✅
+
+--- Result 1 ---
+Score: 0.2642803013019328
+Page: 4
+Content:
+Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale,
+flow batteries and molten salt thermal storage are commercially proven but deployed at smaller
+scale, and adiabatic compressed air and grid-scale hydrogen reconversion remain in earlier
+stages of commercial deployment as of the mid-2020s.
+8. Case Studies
+8.1 Bath County Pumped Storage Station (Virginia, USA)
+Commissioned in 1985, Bath County remains the largest pumped hydro facility in the world by
+generating capacity, at roughly 3,003 megawatts. The station uses a lower reservoir on the Back
+Creek and an upper reservoir roughly 1,260 feet higher in elevation, connected by a headrace
+tunnel more than a mile long. At full output, the station can discharge for approximately eleven
+hours before the upper reservoir is depleted, and it takes roughly six hours of pumping to fully
+recharge it. The facility is primarily used to balance nuclear and coal generation in the surrounding
+
+--- Result 2 ---
+Score: 0.23155667543969738
+Page: 2
+Content:
+projects are sized for two to four hours of discharge, because adding more battery cells to extend
+duration further increases cost roughly linearly, unlike some other technologies where longer
+duration comes more cheaply. Degradation is another factor utilities must plan around, with most
+systems losing meaningful capacity after several thousand charge cycles, though calendar aging
+and thermal management practices affect this significantly.
+3. Flow Batteries
+Flow batteries store energy in liquid electrolytes held in external tanks rather than in the electrode
+material itself, which is the key structural difference from lithium-ion cells. The most commercially
+mature chemistry is the vanadium redox flow battery, in which vanadium ions in different oxidation
+states are pumped through a stack where the electrochemical reaction occurs. Because energy
+capacity is determined by the size of the electrolyte tanks while power capacity is determined by
+
+--- Result 3 ---
+Score: 0.2135190681963594
+Page: 1
+Content:
+facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100
+megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can
+be recovered on the way back down. Construction timelines are long, often exceeding a decade
+once permitting and environmental review are included, and the technology requires specific
+topography: a significant elevation difference between two reservoirs within a manageable
+distance of one another. Because of these siting constraints, most of the world's easily developed
+pumped hydro sites in mountainous or hilly regions have already been built out, and new projects
+increasingly rely on closed-loop designs that do not depend on a natural river system, reducing
+environmental permitting hurdles.
+2. Lithium-Ion Batteries
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past
+
+==========================================
+Hit@1: 6/9
+Hit@1 Rate: 66.7%
+
+Hit@3: 9/9
+Hit@3 Rate: 100.0%
+==========================================
+
+
