@@ -3,6 +3,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { OllamaEmbeddings, ChatOllama } from "@langchain/ollama";
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
+
 // ------------------------------------
 // 1. Load PDF
 // ------------------------------------
@@ -14,12 +15,8 @@ const docs = await loader.load();
 console.log("Pages:", docs.length);
 
 // ------------------------------------
-// 2. Split into chunks
+// 2. Structure-aware section chunking
 // ------------------------------------
-
-// ------------------------------------------
-// Structure-aware section chunking
-// ------------------------------------------
 
 function createHeadingAwareDocuments(docs: Document[]) {
   const sections: Document[] = [];
@@ -45,7 +42,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
 
           pages: [...currentPages],
 
-          // Keep the first page for our current evaluation
           loc: {
             pageNumber: currentPages[0],
           },
@@ -77,7 +73,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
       const subheadingMatch = line.match(/^\d+\.\d+\s+.+$/);
 
       if (subheadingMatch) {
-        // New heading = previous section ends
         flushSection();
 
         currentSubheading = line;
@@ -94,7 +89,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
       const mainHeadingMatch = line.match(/^\d+\.\s+.+$/);
 
       if (mainHeadingMatch) {
-        // New heading = previous section ends
         flushSection();
 
         currentMainHeading = line;
@@ -109,7 +103,10 @@ function createHeadingAwareDocuments(docs: Document[]) {
 
       currentBody += `${line} `;
 
-      if (pageNumber !== undefined && !currentPages.includes(pageNumber)) {
+      if (
+        pageNumber !== undefined &&
+        !currentPages.includes(pageNumber)
+      ) {
         currentPages.push(pageNumber);
       }
     }
@@ -122,7 +119,7 @@ function createHeadingAwareDocuments(docs: Document[]) {
 }
 
 // ------------------------------------------
-// 1. Create structure-aware sections
+// 3. Create structure-aware sections
 // ------------------------------------------
 
 const sectionDocs = createHeadingAwareDocuments(docs);
@@ -130,7 +127,7 @@ const sectionDocs = createHeadingAwareDocuments(docs);
 console.log("Sections:", sectionDocs.length);
 
 // ------------------------------------------
-// 2. Split large sections into smaller chunks
+// 4. Split large sections into chunks
 // ------------------------------------------
 
 const splitter = new RecursiveCharacterTextSplitter({
@@ -141,34 +138,56 @@ const splitter = new RecursiveCharacterTextSplitter({
 const chunks = await splitter.splitDocuments(sectionDocs);
 
 // ------------------------------------------
-// 3. Add heading context to EVERY chunk
+// 5. Add heading context to every chunk
 // ------------------------------------------
 
 for (const chunk of chunks) {
   const mainHeading = chunk.metadata.mainHeading;
   const subheading = chunk.metadata.subheading;
 
-  const headingContext = [mainHeading, subheading].filter(Boolean).join("\n");
+  const headingContext = [mainHeading, subheading]
+    .filter(Boolean)
+    .join("\n");
 
   if (headingContext) {
-    chunk.pageContent = `${headingContext}\n\n${chunk.pageContent}`;
+    chunk.pageContent =
+      `${headingContext}\n\n${chunk.pageContent}`;
   }
 }
 
 console.log("Chunks:", chunks.length);
+
+// ------------------------------------------
+// Show chunks
+// ------------------------------------------
+
 console.log("\n========== CHUNKS ==========\n");
 
 chunks.forEach((chunk, index) => {
   console.log(`\n===== CHUNK ${index + 1} =====`);
 
-  console.log("Page:", chunk.metadata.loc?.pageNumber);
+  console.log(
+    "Page:",
+    chunk.metadata.loc?.pageNumber,
+  );
+
+  console.log(
+    "Main heading:",
+    chunk.metadata.mainHeading,
+  );
+
+  console.log(
+    "Subheading:",
+    chunk.metadata.subheading,
+  );
 
   console.log("\nContent:\n");
+
   console.log(chunk.pageContent);
 });
 
 // ------------------------------------
-// 3. Connect to Ollama embeddings
+// 6. Connect to Ollama embeddings
 // ------------------------------------
 
 const embeddings = new OllamaEmbeddings({
@@ -176,171 +195,416 @@ const embeddings = new OllamaEmbeddings({
   baseUrl: "http://localhost:11434",
 });
 
-//-------------------------------------
-// creating the ollama chat
-//-------------------------------------
+// ------------------------------------
+// 7. Connect to Ollama LLM
+// ------------------------------------
 
 const llm = new ChatOllama({
   model: "gemma3:4b",
   baseUrl: "http://localhost:11434",
   temperature: 0,
 });
+
 // ------------------------------------
-// 4. Create vector store
+// 8. Create vector store
 // ------------------------------------
 
 console.log("\nCreating vector store...");
 
-const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
+const vectorStore =
+  await MemoryVectorStore.fromDocuments(
+    chunks,
+    embeddings,
+  );
 
 console.log("Vector store ready!");
 
 // ------------------------------------
-// 5. Retrieval evaluation dataset
+// 9. Retrieval evaluation dataset
 // ------------------------------------
 
 const evaluationSet = [
   // ------------------------------------
   // Lithium-ion query variations
   // ------------------------------------
+
   {
-    question: "What is the round-trip efficiency of lithium-ion batteries?",
+    question:
+      "What is the round-trip efficiency of lithium-ion batteries?",
     expectedPage: 1,
   },
+
   {
-    question: "What is the round-trip efficiency of lithium-ion systems?",
+    question:
+      "What is the round-trip efficiency of lithium-ion systems?",
     expectedPage: 1,
   },
+
   {
-    question: "What percentage of energy can lithium-ion batteries recover?",
+    question:
+      "What percentage of energy can lithium-ion batteries recover?",
     expectedPage: 1,
   },
+
   {
-    question: "What is the efficiency of lithium-ion battery storage?",
+    question:
+      "What is the efficiency of lithium-ion battery storage?",
     expectedPage: 1,
   },
+
   {
-    question: "What is the typical round-trip efficiency for lithium-ion?",
+    question:
+      "What is the typical round-trip efficiency for lithium-ion?",
     expectedPage: 1,
   },
+
   {
-    question: "How efficient are lithium-ion batteries for grid storage?",
+    question:
+      "How efficient are lithium-ion batteries for grid storage?",
     expectedPage: 1,
   },
 
   // ------------------------------------
   // Other technologies
   // ------------------------------------
+
   {
-    question: "What is the round-trip efficiency of pumped hydro storage?",
+    question:
+      "What is the round-trip efficiency of pumped hydro storage?",
     expectedPage: 1,
   },
+
   {
-    question: "What is the round-trip efficiency of hydrogen storage?",
+    question:
+      "What is the round-trip efficiency of hydrogen storage?",
     expectedPage: 3,
   },
 
   // ------------------------------------
   // Case study
   // ------------------------------------
+
   {
-    question: "Where is Bath County discussed?",
+    question:
+      "Where is Bath County discussed?",
     expectedPage: 4,
   },
 ];
 
 // ------------------------------------
-// 6. Run retrieval evaluation
+// 10. Query expansion
 // ------------------------------------
 
-console.log("\n========== RETRIEVAL EVALUATION ==========\n");
+function expandQuery(question: string): string[] {
+  const queries = [question];
+
+  // ------------------------------------
+  // Lithium-ion specific variations
+  // ------------------------------------
+
+  if (
+    question.toLowerCase().includes("lithium-ion")
+  ) {
+    queries.push(
+      "lithium-ion battery round-trip efficiency",
+    );
+
+    queries.push(
+      "lithium-ion systems efficiency",
+    );
+  }
+
+  // ------------------------------------
+  // Pumped hydro variation
+  // ------------------------------------
+
+  if (
+    question.toLowerCase().includes("pumped hydro")
+  ) {
+    queries.push(
+      "pumped hydro storage round-trip efficiency",
+    );
+  }
+
+  // ------------------------------------
+  // Hydrogen variation
+  // ------------------------------------
+
+  if (
+    question.toLowerCase().includes("hydrogen")
+  ) {
+    queries.push(
+      "hydrogen storage round-trip efficiency",
+    );
+  }
+
+  // ------------------------------------
+  // Bath County variation
+  // ------------------------------------
+
+  if (
+    question.toLowerCase().includes("bath county")
+  ) {
+    queries.push(
+      "Bath County Pumped Storage Station",
+    );
+  }
+
+  return queries;
+}
+
+// ------------------------------------
+// 11. Run retrieval evaluation
+// ------------------------------------
+
+console.log(
+  "\n========== RETRIEVAL EVALUATION ==========\n",
+);
 
 let hitAt1Count = 0;
 let hitAt3Count = 0;
 
 for (const [index, test] of evaluationSet.entries()) {
-  console.log(`\n===== QUESTION ${index + 1} =====`);
 
-  console.log("Question:", test.question);
-
-  // commented this part
-  // const results = await vectorStore.similaritySearchWithScore(test.question, 3);
-  //added this part
-  const results = await vectorStore.maxMarginalRelevanceSearch(test.question, {
-    k: 3,
-    fetchK: 10,
-  });
-  //commented this part
-  // const retrievedPages = results.map(
-  //   ([document]) => document.metadata.loc?.pageNumber,
-  // );
-  const retrievedPages = results.map(
-    (document) => document.metadata.loc?.pageNumber,
+  console.log(
+    `\n===== QUESTION ${index + 1} =====`,
   );
 
-  console.log("Expected page:", test.expectedPage);
-  console.log("Retrieved pages:", retrievedPages);
+  console.log(
+    "Question:",
+    test.question,
+  );
 
+  // ------------------------------------
+  // Generate query variations
+  // ------------------------------------
+
+  const expandedQueries =
+    expandQuery(test.question);
+
+  console.log("\nExpanded queries:");
+
+  expandedQueries.forEach(
+    (query, queryIndex) => {
+      console.log(
+        `${queryIndex + 1}. ${query}`,
+      );
+    },
+  );
+
+  // ------------------------------------
+  // Run similarity search for every query
+  // ------------------------------------
+
+  const allResults: {
+    document: Document;
+    score: number;
+  }[] = [];
+
+  for (const query of expandedQueries) {
+
+    const results =
+      await vectorStore.similaritySearchWithScore(
+        query,
+        3,
+      );
+
+    for (const [document, score] of results) {
+
+      allResults.push({
+        document,
+        score,
+      });
+    }
+  }
+
+  // ------------------------------------
+  // Remove duplicate chunks
+  // ------------------------------------
+
+  const uniqueResults =
+    new Map<
+      string,
+      {
+        document: Document;
+        score: number;
+      }
+    >();
+
+  for (const result of allResults) {
+
+    const key = result.document.pageContent;
+
+    const existing =
+      uniqueResults.get(key);
+
+    /*
+      IMPORTANT:
+
+      MemoryVectorStore's score here is a
+      distance value.
+
+      Lower distance = more similar.
+
+      Therefore we keep the LOWER score.
+    */
+
+    if (
+      !existing ||
+      result.score < existing.score
+    ) {
+      uniqueResults.set(
+        key,
+        result,
+      );
+    }
+  }
+
+  // ------------------------------------
+  // Sort by best similarity
+  // ------------------------------------
+
+  const mergedResults =
+    Array.from(uniqueResults.values())
+      .sort(
+        (a, b) => a.score - b.score,
+      )
+      .slice(0, 3);
+
+  // ------------------------------------
+  // Retrieved pages
+  // ------------------------------------
+
+  const retrievedPages =
+    mergedResults.map(
+      ({ document }) =>
+        document.metadata.loc?.pageNumber,
+    );
+
+  console.log(
+    "\nExpected page:",
+    test.expectedPage,
+  );
+
+  console.log(
+    "Retrieved pages:",
+    retrievedPages,
+  );
+
+  // ------------------------------------
   // Hit@1
-  const hitAt1 = retrievedPages[0] === test.expectedPage;
+  // ------------------------------------
 
+  const hitAt1 =
+    retrievedPages[0] ===
+    test.expectedPage;
+
+  // ------------------------------------
   // Hit@3
-  const hitAt3 = retrievedPages.includes(test.expectedPage);
+  // ------------------------------------
+
+  const hitAt3 =
+    retrievedPages.includes(
+      test.expectedPage,
+    );
 
   if (hitAt1) {
+
     console.log("Hit@1: ✅");
+
     hitAt1Count++;
+
   } else {
+
     console.log("Hit@1: ❌");
   }
 
   if (hitAt3) {
+
     console.log("Hit@3: ✅");
+
     hitAt3Count++;
+
   } else {
+
     console.log("Hit@3: ❌");
   }
 
-  // results.forEach(([document, score], resultIndex) => {
-  //   console.log(`\n--- Result ${resultIndex + 1} ---`);
+  // ------------------------------------
+  // Show final retrieved chunks
+  // ------------------------------------
 
-  //   console.log("Score:", score);
+  mergedResults.forEach(
+    ({ document, score }, resultIndex) => {
 
-  //   console.log("Page:", document.metadata.loc?.pageNumber);
+      console.log(
+        `\n--- Result ${resultIndex + 1} ---`,
+      );
 
-  //   console.log("Content:");
+      console.log(
+        "Score:",
+        score,
+      );
 
-  //   console.log(document.pageContent);
-  // });
+      console.log(
+        "Page:",
+        document.metadata.loc?.pageNumber,
+      );
 
-  results.forEach((document, resultIndex) => {
-    console.log(`\n--- Result ${resultIndex + 1} ---`);
-    console.log("Page:", document.metadata.loc?.pageNumber);
-    console.log("Main heading:", document.metadata.mainHeading);
-    console.log("Subheading:", document.metadata.subheading);
-    console.log("Content:");
-    console.log(document.pageContent);
-  });
+      console.log(
+        "Main heading:",
+        document.metadata.mainHeading,
+      );
+
+      console.log(
+        "Subheading:",
+        document.metadata.subheading,
+      );
+
+      console.log("Content:");
+
+      console.log(
+        document.pageContent,
+      );
+    },
+  );
 }
 
 // ------------------------------------
-// 7. Calculate metrics
+// 12. Calculate metrics
 // ------------------------------------
-// Show retrieved results
 
-const totalQuestions = evaluationSet.length;
+const totalQuestions =
+  evaluationSet.length;
 
-const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
-const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
+const hitAt1Rate =
+  (hitAt1Count / totalQuestions) * 100;
 
-console.log("\n==========================================");
+const hitAt3Rate =
+  (hitAt3Count / totalQuestions) * 100;
 
-console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
-console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
+console.log(
+  "\n==========================================",
+);
+
+console.log(
+  `Hit@1: ${hitAt1Count}/${totalQuestions}`,
+);
+
+console.log(
+  `Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`,
+);
 
 console.log("");
 
-console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
-console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
+console.log(
+  `Hit@3: ${hitAt3Count}/${totalQuestions}`,
+);
 
-console.log("==========================================");
+console.log(
+  `Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`,
+);
+
+console.log(
+  "==========================================",
+);
