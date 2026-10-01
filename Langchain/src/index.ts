@@ -189,111 +189,107 @@ const llm = new ChatOllama({
 // Reranker
 // ------------------------------------
 
-async function rerankDocuments(question: string, documents: Document[]) {
-  const documentsText = documents
-    .map(
-      (document, index) => `
-DOCUMENT ${index + 1}
-Page: ${document.metadata.loc?.pageNumber}
+// async function rerankDocuments(question: string, documents: Document[]) {
+//   const documentsText = documents
+//     .map(
+//       (document, index) => `
+// DOCUMENT ${index + 1}
+// Page: ${document.metadata.loc?.pageNumber}
 
-${document.pageContent}
-`,
-    )
-    .join("\n--------------------\n");
+// ${document.pageContent}
+// `,
+//     )
+//     .join("\n--------------------\n");
 
-  const prompt = `
-You are a document relevance reranker.
+//   const prompt = `
+// You are a document relevance reranker.
 
-Your task is to rank the documents according to how useful they are
-for answering the user's question.
+// Your task is to rank the documents according to how useful they are
+// for answering the user's question.
 
-Question:
-${question}
+// Question:
+// ${question}
 
-Documents:
-${documentsText}
+// Documents:
+// ${documentsText}
 
-Return ONLY a JSON array.
+// Return ONLY a JSON array.
 
-The array must contain exactly one score for each document,
-in the same order.
+// The array must contain exactly one score for each document,
+// in the same order.
 
-Use a score from 0 to 10:
+// Use a score from 0 to 10:
 
-10 = directly answers the question
-8-9 = highly relevant
-5-7 = somewhat relevant
-1-4 = weakly relevant
-0 = irrelevant
+// 10 = directly answers the question
+// 8-9 = highly relevant
+// 5-7 = somewhat relevant
+// 1-4 = weakly relevant
+// 0 = irrelevant
 
-Example:
-[9, 2, 7, 1]
+// Example:
+// [9, 2, 7, 1]
 
-Do not include explanations.
-Do not include markdown.
-`;
+// Do not include explanations.
+// Do not include markdown.
+// `;
 
-  const response = await llm.invoke(prompt);
+//   const response = await llm.invoke(prompt);
 
-  const raw = response.content.toString().trim();
+//   const raw = response.content.toString().trim();
 
-  console.log("Reranker response:", raw);
+//   console.log("Reranker response:", raw);
 
-  let scores: number[];
+//   let scores: number[];
 
-  try {
-    scores = JSON.parse(raw);
-  } catch {
-    console.log("Could not parse reranker response.");
-    return documents.map((document) => ({
-      document,
-      score: 0,
-    }));
-  }
+//   try {
+//     scores = JSON.parse(raw);
+//   } catch {
+//     console.log("Could not parse reranker response.");
+//     return documents.map((document) => ({
+//       document,
+//       score: 0,
+//     }));
+//   }
 
-  return documents
-    .map((document, index) => ({
-      document,
-      score: Number(scores[index]) || 0,
-    }))
-    .sort((a, b) => b.score - a.score);
-}
-// ------------------------------------
-// 4. Create vector store
-// ------------------------------------
-
-console.log("\nCreating vector store...");
-
-const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
+//   return documents
+//     .map((document, index) => ({
+//       document,
+//       score: Number(scores[index]) || 0,
+//     }))
+//     .sort((a, b) => b.score - a.score);
+// }
 // ===============================
 // Stage 4: Metadata Filtering Test
 // ===============================
 
-const question =
-  "What is the round-trip efficiency of lithium-ion batteries?";
+const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
 
-const filteredResults =
-  await vectorStore.similaritySearchWithScore(
-    question,
-    3,
-    (document) =>
-      document.metadata.mainHeading ===
-      "2. Lithium-Ion Batteries",
-  );
+const question = "Tell me about Bath County Pumped Storage Station.";
+
+const filteredResults = await vectorStore.similaritySearchWithScore(
+  question,
+  10,
+);
 
 console.log("\n==============================");
-console.log("METADATA FILTERING TEST");
+console.log("COMBINED METADATA FILTERING TEST");
 console.log("==============================");
+
+console.log("Filter: mainHeading = 8. Case Studies");
+
+console.log("AND subheading = 8.1 Bath County Pumped Storage Station");
+
+console.log("Results found:", filteredResults.length);
 
 filteredResults.forEach(([document, score], index) => {
   console.log(`\n--- Result ${index + 1} ---`);
+
   console.log("Score:", score);
   console.log("Main heading:", document.metadata.mainHeading);
   console.log("Subheading:", document.metadata.subheading);
+  console.log("Page:", document.metadata.loc?.pageNumber);
   console.log("Content:", document.pageContent);
 });
-
-console.log("Vector store ready!");
 
 // ------------------------------------
 // 5. Retrieval evaluation dataset
@@ -344,10 +340,10 @@ console.log("Vector store ready!");
 // 6. Run retrieval evaluation
 // ------------------------------------
 
-console.log("\n========== RETRIEVAL EVALUATION ==========\n");
+// console.log("\n========== RETRIEVAL EVALUATION ==========\n");
 
-let hitAt1Count = 0;
-let hitAt3Count = 0;
+// let hitAt1Count = 0;
+// let hitAt3Count = 0;
 
 // for (const [index, test] of evaluationSet.entries()) {
 //   console.log(`\n===== QUESTION ${index + 1} =====`);
@@ -442,7 +438,6 @@ let hitAt3Count = 0;
 //   } else {
 //     console.log("Hit@3: ❌");
 //   }
-  
 
 //   // ------------------------------------
 //   // 5. Show retrieved documents
