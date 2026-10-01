@@ -13,9 +13,9 @@ const docs = await loader.load();
 
 console.log("Pages:", docs.length);
 
-// ------------------------------------
+// ------------------------------------------
 // 2. Split into chunks
-// ------------------------------------
+// ------------------------------------------
 
 // ------------------------------------------
 // Structure-aware section chunking
@@ -265,6 +265,33 @@ Do not include markdown.
 console.log("\nCreating vector store...");
 
 const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
+// ===============================
+// Stage 4: Metadata Filtering Test
+// ===============================
+
+const question =
+  "What is the round-trip efficiency of lithium-ion batteries?";
+
+const filteredResults =
+  await vectorStore.similaritySearchWithScore(
+    question,
+    3,
+    (document) =>
+      document.metadata.mainHeading ===
+      "2. Lithium-Ion Batteries",
+  );
+
+console.log("\n==============================");
+console.log("METADATA FILTERING TEST");
+console.log("==============================");
+
+filteredResults.forEach(([document, score], index) => {
+  console.log(`\n--- Result ${index + 1} ---`);
+  console.log("Score:", score);
+  console.log("Main heading:", document.metadata.mainHeading);
+  console.log("Subheading:", document.metadata.subheading);
+  console.log("Content:", document.pageContent);
+});
 
 console.log("Vector store ready!");
 
@@ -272,46 +299,46 @@ console.log("Vector store ready!");
 // 5. Retrieval evaluation dataset
 // ------------------------------------
 
-const evaluationSet = [
-  {
-    question: "What is the round-trip efficiency of lithium-ion batteries?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "What is the round-trip efficiency of lithium-ion systems?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "What percentage of energy can lithium-ion batteries recover?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "What is the efficiency of lithium-ion battery storage?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "What is the typical round-trip efficiency for lithium-ion?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "How efficient are lithium-ion batteries for grid storage?",
-    expectedHeading: "2. Lithium-Ion Batteries",
-  },
-  {
-    question: "What is the round-trip efficiency of pumped hydro storage?",
-    expectedHeading: "1. Pumped Hydro Storage",
-  },
-  {
-    question: "What is the round-trip efficiency of hydrogen storage?",
-    expectedHeading: "6. Hydrogen-Based Storage",
-  },
-  {
-    question: "Where is Bath County discussed?",
-    expectedHeading: "8. Case Studies",
-    expectedSubheading:
-      "8.1 Bath County Pumped Storage Station (Virginia, USA)",
-  },
-];
+// const evaluationSet = [
+//   {
+//     question: "What is the round-trip efficiency of lithium-ion batteries?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "What is the round-trip efficiency of lithium-ion systems?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "What percentage of energy can lithium-ion batteries recover?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "What is the efficiency of lithium-ion battery storage?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "What is the typical round-trip efficiency for lithium-ion?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "How efficient are lithium-ion batteries for grid storage?",
+//     expectedHeading: "2. Lithium-Ion Batteries",
+//   },
+//   {
+//     question: "What is the round-trip efficiency of pumped hydro storage?",
+//     expectedHeading: "1. Pumped Hydro Storage",
+//   },
+//   {
+//     question: "What is the round-trip efficiency of hydrogen storage?",
+//     expectedHeading: "6. Hydrogen-Based Storage",
+//   },
+//   {
+//     question: "Where is Bath County discussed?",
+//     expectedHeading: "8. Case Studies",
+//     expectedSubheading:
+//       "8.1 Bath County Pumped Storage Station (Virginia, USA)",
+//   },
+// ];
 
 // ------------------------------------
 // 6. Run retrieval evaluation
@@ -322,136 +349,141 @@ console.log("\n========== RETRIEVAL EVALUATION ==========\n");
 let hitAt1Count = 0;
 let hitAt3Count = 0;
 
-for (const [index, test] of evaluationSet.entries()) {
-  console.log(`\n===== QUESTION ${index + 1} =====`);
+// for (const [index, test] of evaluationSet.entries()) {
+//   console.log(`\n===== QUESTION ${index + 1} =====`);
 
-  console.log("Question:", test.question);
-  console.log("Expected heading:", test.expectedHeading);
+//   console.log("Question:", test.question);
+//   console.log("Expected heading:", test.expectedHeading);
 
-  // ------------------------------------
-  // 1. Retrieve top 3 using normal similarity
-  // ------------------------------------
+//   // ------------------------------------
+//   // 1. Retrieve top 3 using normal similarity
+//   // ------------------------------------
 
-  // const results = await vectorStore.similaritySearchWithScore(test.question, 3);
-  // ------------------------------------
-  // 1. Retrieve top 10 candidates
-  // ------------------------------------
+//   // const results = await vectorStore.similaritySearchWithScore(test.question, 3);
+//   // ------------------------------------
+//   // 1. Retrieve top 10 candidates
+//   // ------------------------------------
 
-  const candidateResults = await vectorStore.similaritySearchWithScore(
-    test.question,
-    10,
-  );
+// const candidateResults =
+//   await vectorStore.similaritySearchWithScore(
+//     test.question,
+//     10,
+//     (document) =>
+//       document.metadata.mainHeading ===
+//       "2. Lithium-Ion Batteries",
+//   );
 
-  // Remove similarity scores.
-  // Reranker only needs the documents.
-  const candidateDocuments = candidateResults.map(([document]) => document);
+//   // Remove similarity scores.
+//   // Reranker only needs the documents.
+//   const candidateDocuments = candidateResults.map(([document]) => document);
 
-  // ------------------------------------
-  // 2. Rerank top 10 candidates
-  // ------------------------------------
+//   // ------------------------------------
+//   // 2. Rerank top 10 candidates
+//   // ------------------------------------
 
-  const rerankedResults = await rerankDocuments(
-    test.question,
-    candidateDocuments,
-  );
+//   const rerankedResults = await rerankDocuments(
+//     test.question,
+//     candidateDocuments,
+//   );
 
-  // ------------------------------------
-  // 3. Take top 3 after reranking
-  // ------------------------------------
+//   // ------------------------------------
+//   // 3. Take top 3 after reranking
+//   // ------------------------------------
 
-  const results = rerankedResults.slice(0, 3);
+//   const results = rerankedResults.slice(0, 3);
 
-  // ------------------------------------
-  // 2. Get retrieved headings
-  // ------------------------------------
-  const retrievedHeadings = results.map(
-    ({document}) => document.metadata.mainHeading,
-  );
-  console.log("Retrieved headings:", retrievedHeadings);
-  const hitAt1 = (() => {
-   const document = results[0].document;
+//   // ------------------------------------
+//   // 2. Get retrieved headings
+//   // ------------------------------------
+//   const retrievedHeadings = results.map(
+//     ({document}) => document.metadata.mainHeading,
+//   );
+//   console.log("Retrieved headings:", retrievedHeadings);
+//   const hitAt1 = (() => {
+//    const document = results[0].document;
 
-    const headingMatches =
-      document.metadata.mainHeading === test.expectedHeading;
+//     const headingMatches =
+//       document.metadata.mainHeading === test.expectedHeading;
 
-    if (test.expectedSubheading) {
-      return (
-        headingMatches &&
-        document.metadata.subheading === test.expectedSubheading
-      );
-    }
+//     if (test.expectedSubheading) {
+//       return (
+//         headingMatches &&
+//         document.metadata.subheading === test.expectedSubheading
+//       );
+//     }
 
-    return headingMatches;
-  })();
+//     return headingMatches;
+//   })();
 
-  const hitAt3 = results.some(({document}) => {
-    const headingMatches =
-      document.metadata.mainHeading === test.expectedHeading;
+//   const hitAt3 = results.some(({document}) => {
+//     const headingMatches =
+//       document.metadata.mainHeading === test.expectedHeading;
 
-    if (test.expectedSubheading) {
-      return (
-        headingMatches &&
-        document.metadata.subheading === test.expectedSubheading
-      );
-    }
+//     if (test.expectedSubheading) {
+//       return (
+//         headingMatches &&
+//         document.metadata.subheading === test.expectedSubheading
+//       );
+//     }
 
-    return headingMatches;
-  });
+//     return headingMatches;
+//   });
 
-  if (hitAt1) {
-    console.log("Hit@1: ✅");
-    hitAt1Count++;
-  } else {
-    console.log("Hit@1: ❌");
-  }
+//   if (hitAt1) {
+//     console.log("Hit@1: ✅");
+//     hitAt1Count++;
+//   } else {
+//     console.log("Hit@1: ❌");
+//   }
 
-  if (hitAt3) {
-    console.log("Hit@3: ✅");
-    hitAt3Count++;
-  } else {
-    console.log("Hit@3: ❌");
-  }
+//   if (hitAt3) {
+//     console.log("Hit@3: ✅");
+//     hitAt3Count++;
+//   } else {
+//     console.log("Hit@3: ❌");
+//   }
+  
 
-  // ------------------------------------
-  // 5. Show retrieved documents
-  // ------------------------------------
+//   // ------------------------------------
+//   // 5. Show retrieved documents
+//   // ------------------------------------
 
-  results.forEach(({document, score}, resultIndex) => {
-    console.log(`\n--- Result ${resultIndex + 1} ---`);
+//   results.forEach(({document, score}, resultIndex) => {
+//     console.log(`\n--- Result ${resultIndex + 1} ---`);
 
-    console.log("Similarity score:", score);
+//     console.log("Similarity score:", score);
 
-    console.log("Main heading:", document.metadata.mainHeading);
+//     console.log("Main heading:", document.metadata.mainHeading);
 
-    console.log("Subheading:", document.metadata.subheading);
+//     console.log("Subheading:", document.metadata.subheading);
 
-    console.log("Page:", document.metadata.loc?.pageNumber);
-  });
-}
+//     console.log("Page:", document.metadata.loc?.pageNumber);
+//   });
+// }
 
 // ------------------------------------
 // 7. Calculate metrics
 // ------------------------------------
 
-const totalQuestions = evaluationSet.length;
+// const totalQuestions = evaluationSet.length;
 
-const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
+// const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
 
-const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
+// const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
 
-console.log("\n==========================================");
+// console.log("\n==========================================");
 
-console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
+// console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
 
-console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
+// console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
 
-console.log("");
+// console.log("");
 
-console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
+// console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
 
-console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
+// console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
 
-console.log("==========================================");
+// console.log("==========================================");
 //added this part
 // const results = await vectorStore.maxMarginalRelevanceSearch(test.question, {
 //   k: 3,
