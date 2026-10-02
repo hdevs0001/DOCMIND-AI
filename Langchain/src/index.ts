@@ -264,33 +264,110 @@ const llm = new ChatOllama({
 
 const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
 
-const question = "Tell me about Bath County Pumped Storage Station.";
+// -----------------------------------
+// Query Router
+// -----------------------------------
 
-const filteredResults = await vectorStore.similaritySearchWithScore(
-  question,
-  10,
-);
+function routeQuery(question: string) {
+  const AskedQuestion = question.toLowerCase();
+  if (AskedQuestion.includes("lithium-ion")) {
+    return {
+      strategy: "metadata_filter",
+      filter: {
+        mainHeading: "2. Lithium-Ion Batteries",
+      },
+    };
+  }
 
-console.log("\n==============================");
-console.log("COMBINED METADATA FILTERING TEST");
-console.log("==============================");
+  //specific subsection
+  if (AskedQuestion.includes("bath county")) {
+    return {
+      strategy: "metadata_filter",
+      filter: {
+        subheading: "8.1 Bath County Pumped Storage Station (Virginia, USA)",
+      },
+    };
+  }
 
-console.log("Filter: mainHeading = 8. Case Studies");
+  return {
+    strategy: "vector_search",
+  };
+}
 
-console.log("AND subheading = 8.1 Bath County Pumped Storage Station");
+//------------------------------------
+//Ask a Question
+//------------------------------------
 
-console.log("Results found:", filteredResults.length);
+const testQuestions = [
+  "What is the efficiency of LFP batteries?",
+  "How long can the Bath County station operate?",
+  "Compare lithium-ion batteries and pumped hydro.",
+  "What storage technologies are discussed in this document?",
+];
 
-filteredResults.forEach(([document, score], index) => {
-  console.log(`\n--- Result ${index + 1} ---`);
+for (const question of testQuestions) {
+  const route = routeQuery(question);
 
-  console.log("Score:", score);
-  console.log("Main heading:", document.metadata.mainHeading);
-  console.log("Subheading:", document.metadata.subheading);
-  console.log("Page:", document.metadata.loc?.pageNumber);
-  console.log("Content:", document.pageContent);
-});
+  console.log("\n==============================");
+  console.log("QUERY ROUTING");
+  console.log("==============================");
 
+  console.log("Question:", question);
+  console.log("Route:", route);
+
+  let results;
+
+  if (route.strategy === "metadata_filter") {
+    results = await vectorStore.similaritySearchWithScore(
+      question,
+      5,
+      (document) => {
+        if (route.filter?.mainHeading) {
+          return (
+            document.metadata.mainHeading ===
+            route.filter.mainHeading
+          );
+        }
+
+        if (route.filter?.subheading) {
+          return (
+            document.metadata.subheading ===
+            route.filter.subheading
+          );
+        }
+
+        return true;
+      },
+    );
+  } else {
+    results =
+      await vectorStore.similaritySearchWithScore(
+        question,
+        10,
+      );
+  }
+
+  console.log("\nRETRIEVAL RESULTS");
+  console.log("Results found:", results.length);
+
+  results.forEach(([document, score], index) => {
+    console.log(`\n--- Result ${index + 1} ---`);
+
+    console.log("Score:", score);
+    console.log(
+      "Main heading:",
+      document.metadata.mainHeading,
+    );
+    console.log(
+      "Subheading:",
+      document.metadata.subheading,
+    );
+    console.log(
+      "Page:",
+      document.metadata.loc?.pageNumber,
+    );
+  });
+}
 // ------------------------------------
 // 5. Retrieval evaluation dataset
 // ------------------------------------
