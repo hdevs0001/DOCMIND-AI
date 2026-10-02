@@ -1,0 +1,461 @@
+
+Pages: 5
+Sections: 12
+Chunks: 22
+
+========== CHUNKS ==========
+
+
+===== CHUNK 1 =====
+Page: 1
+
+Content:
+
+Grid-Scale Energy Storage: A Technical Overview Prepared as a reference document for chunking and retrieval testing As power grids around the world add growing shares of wind and solar generation, the timing mismatch between when electricity is produced and when it is needed has become one of the central engineering problems of the energy transition. Grid-scale storage technologies exist to close that gap, absorbing surplus electricity when generation is high and releasing it when demand outstrips supply. No single storage technology dominates every use case. Instead, a handful of distinct approaches have matured over the past two decades, each with its own combination of cost, duration, efficiency, and siting requirements. This report surveys six of the most widely deployed categories: pumped hydro storage, lithium-ion batteries, flow batteries, compressed air energy storage, thermal storage, and hydrogen-based storage. It closes with a comparative discussion of how utilities choose
+
+===== CHUNK 2 =====
+Page: 1
+
+Content:
+
+hydro storage, lithium-ion batteries, flow batteries, compressed air energy storage, thermal storage, and hydrogen-based storage. It closes with a comparative discussion of how utilities choose among them.
+
+===== CHUNK 3 =====
+Page: 1
+
+Content:
+
+1. Pumped Hydro Storage
+
+Pumped hydro storage (PHS) is the oldest and, by installed capacity, still the largest form of grid storage in the world, accounting for the great majority of global storage capacity measured in gigawatt-hours. The technology works by pumping water from a lower reservoir to an upper reservoir during periods of low electricity demand or high renewable output, then releasing that water back downhill through turbines when power is needed. A typical utility-scale pumped hydro facility has a round-trip efficiency between 70 and 85 percent, meaning that for every 100 megawatt-hours of electricity used to pump water uphill, between 70 and 85 megawatt-hours can be recovered on the way back down. Construction timelines are long, often exceeding a decade once permitting and environmental review are included, and the technology requires specific topography: a significant elevation difference between two reservoirs within a manageable distance of one another. Because of these siting constraints,
+
+===== CHUNK 4 =====
+Page: 1
+
+Content:
+
+1. Pumped Hydro Storage
+
+included, and the technology requires specific topography: a significant elevation difference between two reservoirs within a manageable distance of one another. Because of these siting constraints, most of the world's easily developed pumped hydro sites in mountainous or hilly regions have already been built out, and new projects increasingly rely on closed-loop designs that do not depend on a natural river system, reducing environmental permitting hurdles.
+
+===== CHUNK 5 =====
+Page: 1
+
+Content:
+
+2. Lithium-Ion Batteries
+
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past ten years, driven by steep cost declines that tracked the broader electric vehicle battery market. Utility-scale lithium-ion installations typically use either nickel manganese cobalt (NMC) or lithium iron phosphate (LFP) chemistries, with LFP now dominant in new grid projects because of its lower cost, longer cycle life, and reduced fire risk, even though it has a somewhat lower energy density than NMC. Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95 percent range, and response times are near-instantaneous, making the technology well suited to short-duration applications such as frequency regulation and smoothing the output of solar farms over periods of seconds to a few hours. The main limitation is duration: most deployed lithium-ion projects are sized for two to four hours of discharge, because adding more battery cells to extend duration further
+
+===== CHUNK 6 =====
+Page: 1
+
+Content:
+
+2. Lithium-Ion Batteries
+
+seconds to a few hours. The main limitation is duration: most deployed lithium-ion projects are sized for two to four hours of discharge, because adding more battery cells to extend duration further increases cost roughly linearly, unlike some other technologies where longer duration comes more cheaply. Degradation is another factor utilities must plan around, with most systems losing meaningful capacity after several thousand charge cycles, though calendar aging and thermal management practices affect this significantly.
+
+===== CHUNK 7 =====
+Page: 2
+
+Content:
+
+3. Flow Batteries
+
+Flow batteries store energy in liquid electrolytes held in external tanks rather than in the electrode material itself, which is the key structural difference from lithium-ion cells. The most commercially mature chemistry is the vanadium redox flow battery, in which vanadium ions in different oxidation states are pumped through a stack where the electrochemical reaction occurs. Because energy capacity is determined by the size of the electrolyte tanks while power capacity is determined by the size of the reaction stack, flow batteries decouple duration from power rating in a way lithium-ion cannot: a utility can add hours of storage simply by installing larger tanks, without needing to add more stack hardware. This makes flow batteries economically attractive for four-to-twelve-hour duration applications, a range where lithium-ion costs scale less favorably. Round-trip efficiency is lower than lithium-ion, generally in the 65 to 80 percent range, and the technology has a lower energy
+
+===== CHUNK 8 =====
+Page: 2
+
+Content:
+
+3. Flow Batteries
+
+applications, a range where lithium-ion costs scale less favorably. Round-trip efficiency is lower than lithium-ion, generally in the 65 to 80 percent range, and the technology has a lower energy density, meaning flow battery installations require significantly more land area per megawatt-hour than an equivalent lithium-ion system. Vanadium flow batteries also have an essentially unlimited cycle life compared to lithium-ion, since the electrolyte itself does not degrade the way solid electrode materials do, though the vanadium electrolyte represents a large upfront material cost.
+
+===== CHUNK 9 =====
+Page: 2
+
+Content:
+
+4. Compressed Air Energy Storage
+
+Compressed air energy storage (CAES) uses surplus electricity to compress air and inject it into an underground cavern, typically a salt formation, and later releases that pressurized air to drive a turbine and generate electricity on demand. Only two large commercial CAES plants have operated for an extended period worldwide, one in Huntorf, Germany, commissioned in 1978, and one in McIntosh, Alabama, commissioned in 1991, though a wave of newer projects using above-ground pressure vessels or repurposed geological formations has entered development since 2020. Traditional diabatic CAES loses a significant portion of the compression heat to the atmosphere and must burn natural gas to reheat the air before it expands through the turbine, which limits round-trip efficiency to roughly 40 to 55 percent and ties the technology's emissions profile to a fossil fuel input. Newer adiabatic and isothermal CAES designs capture and store the heat of compression separately and reuse it during
+
+===== CHUNK 10 =====
+Page: 2
+
+Content:
+
+4. Compressed Air Energy Storage
+
+to 55 percent and ties the technology's emissions profile to a fossil fuel input. Newer adiabatic and isothermal CAES designs capture and store the heat of compression separately and reuse it during discharge, avoiding the need for supplemental gas combustion and pushing round-trip efficiency toward 60 to 70 percent, though few of these designs have yet been proven at full commercial scale.
+
+===== CHUNK 11 =====
+Page: 3
+
+Content:
+
+5. Thermal Energy Storage
+
+Thermal storage systems store energy as heat or cold rather than as electricity directly, which is later converted back to electricity or used directly for heating and cooling purposes. Molten salt storage, most commonly paired with concentrated solar power plants, heats a mixture of sodium and potassium nitrate salts to temperatures around 565 degrees Celsius, storing that heat in insulated tanks for use hours after the sun has set. A molten salt system can typically deliver six to ten hours of storage at the associated power plant, and the technology has a strong track record at facilities such as Spain's Gemasolar and the United States' Crescent Dunes plant. A separate and increasingly common category is electric thermal storage using heated ceramic bricks or blocks, sometimes called 'sand batteries' when the storage medium is crushed rock or sand, which can reach temperatures exceeding 1,000 degrees Celsius and store energy at a fraction of the capital cost of batteries, though the
+
+===== CHUNK 12 =====
+Page: 3
+
+Content:
+
+5. Thermal Energy Storage
+
+batteries' when the storage medium is crushed rock or sand, which can reach temperatures exceeding 1,000 degrees Celsius and store energy at a fraction of the capital cost of batteries, though the stored heat is generally used for industrial process heat or district heating rather than being reconverted efficiently back into electricity.
+
+===== CHUNK 13 =====
+Page: 3
+
+Content:
+
+6. Hydrogen-Based Storage
+
+Hydrogen storage uses surplus electricity to split water into hydrogen and oxygen through electrolysis, storing the hydrogen in tanks or underground caverns and later converting it back to electricity through a fuel cell or a hydrogen-capable gas turbine. The round trip through electrolysis, storage, and reconversion is the least efficient of the technologies discussed in this report, with round-trip efficiency typically falling between 30 and 45 percent, because energy is lost at both the electrolysis and the reconversion stages. Despite this efficiency penalty, hydrogen is the leading candidate for seasonal storage, meaning storage designed to shift energy across weeks or months rather than hours, because hydrogen can be stored in large underground salt caverns at very low cost per unit of energy once the cavern is built, unlike batteries, whose cost scales directly with stored energy capacity. Green hydrogen projects intended for grid storage remain far less numerous than battery
+
+===== CHUNK 14 =====
+Page: 3
+
+Content:
+
+6. Hydrogen-Based Storage
+
+of energy once the cavern is built, unlike batteries, whose cost scales directly with stored energy capacity. Green hydrogen projects intended for grid storage remain far less numerous than battery projects as of the mid-2020s, and most operating hydrogen storage facilities serve industrial feedstock or transport fuel markets rather than electricity reconversion.
+
+===== CHUNK 15 =====
+Page: 3
+
+Content:
+
+7. Comparing and Choosing Between Technologies
+
+Utilities and grid planners generally select a storage technology based on the required discharge duration, since no single technology is cost-optimal across all durations. For sub-four-hour applications such as frequency regulation, voltage support, and smoothing short-term renewable variability, lithium-ion batteries currently offer the best combination of cost, efficiency, and fast response. For four-to-twelve-hour applications, such as shifting solar output from midday into the evening demand peak, flow batteries and, where geography allows, pumped hydro become increasingly competitive because their costs scale more favorably with duration. For storage durations extending beyond a day, into multi-day or seasonal timeframes, only compressed air, large thermal systems, and hydrogen currently offer plausible economics, since battery costs at that scale become prohibitive. Geography also plays a determining role independent of duration. Pumped hydro and CAES both require specific
+
+===== CHUNK 16 =====
+Page: 3
+
+Content:
+
+7. Comparing and Choosing Between Technologies
+
+currently offer plausible economics, since battery costs at that scale become prohibitive. Geography also plays a determining role independent of duration. Pumped hydro and CAES both require specific geological conditions that are absent in much of the world, which is one reason battery and thermal storage installations have grown so quickly in regions such as flat coastal plains and desert basins where suitable hills or salt caverns do not exist. Regulatory treatment further shapes deployment: in markets where storage can be compensated for multiple services simultaneously, such as both energy arbitrage and frequency regulation, the extra revenue stacking substantially improves project economics and tends to favor faster-responding technologies like lithium-ion. Looking forward, most grid planning studies published in the mid-2020s project that lithium-ion will continue to dominate new installations through the end of the decade by sheer volume, while longer-duration technologies
+
+===== CHUNK 17 =====
+Page: 3
+
+Content:
+
+7. Comparing and Choosing Between Technologies
+
+grid planning studies published in the mid-2020s project that lithium-ion will continue to dominate new installations through the end of the decade by sheer volume, while longer-duration technologies including flow batteries, thermal storage, and hydrogen are expected to capture a growing share of new capacity specifically in the four-hour-and-longer segment as renewable penetration increases and grids require more sustained shifting of energy across the day. Summary Table Notes Across the six technologies surveyed, round-trip efficiency ranges from roughly 30 percent for hydrogen to as high as 95 percent for lithium-ion batteries. Typical discharge durations range from under four hours for lithium-ion up to weeks or months for hydrogen in underground caverns. Maturity also varies widely: pumped hydro and lithium-ion are both fully commercial at large scale, flow batteries and molten salt thermal storage are commercially proven but deployed at smaller scale, and adiabatic compressed
+
+===== CHUNK 18 =====
+Page: 3
+
+Content:
+
+7. Comparing and Choosing Between Technologies
+
+pumped hydro and lithium-ion are both fully commercial at large scale, flow batteries and molten salt thermal storage are commercially proven but deployed at smaller scale, and adiabatic compressed air and grid-scale hydrogen reconversion remain in earlier stages of commercial deployment as of the mid-2020s.
+
+===== CHUNK 19 =====
+Page: 4
+
+Content:
+
+8. Case Studies
+8.1 Bath County Pumped Storage Station (Virginia, USA)
+
+Commissioned in 1985, Bath County remains the largest pumped hydro facility in the world by generating capacity, at roughly 3,003 megawatts. The station uses a lower reservoir on the Back Creek and an upper reservoir roughly 1,260 feet higher in elevation, connected by a headrace tunnel more than a mile long. At full output, the station can discharge for approximately eleven hours before the upper reservoir is depleted, and it takes roughly six hours of pumping to fully recharge it. The facility is primarily used to balance nuclear and coal generation in the surrounding region rather than to firm renewables, since it predates the modern wind and solar buildout by two decades, illustrating that pumped hydro's core value proposition, shifting large blocks of energy across many hours, has outlasted the specific generation mix it was originally built to balance.
+
+===== CHUNK 20 =====
+Page: 4
+
+Content:
+
+8. Case Studies
+8.2 Hornsdale Power Reserve (South Australia)
+
+Hornsdale, commissioned in 2017 and expanded twice since, was among the first grid-scale lithium-ion battery installations to demonstrate that batteries could profitably compete in frequency-regulation and grid-stability markets previously served only by fast-ramping gas turbines. Following a major coal plant closure and a subsequent statewide blackout in 2016, South Australia's grid operator turned to battery storage as a faster and cheaper way to restore grid stability services than building new gas peaker capacity. Within its first year of operation, the facility was credited with sharply reducing the cost of frequency-control ancillary services in the South Australian market, and independent analyses estimated tens of millions of dollars in savings to consumers, a result that accelerated utility-scale battery adoption across Australia and, subsequently, other markets watching the project closely.
+
+===== CHUNK 21 =====
+Page: 5
+
+Content:
+
+8. Case Studies
+8.3 Advanced Rail Energy Storage and Other Niche Approaches
+
+Beyond the six mainstream categories, a number of niche mechanical storage concepts have been piloted at smaller scale, including gravity-based systems that raise and lower heavy weights in disused mine shafts or purpose-built towers, and rail-based systems that move loaded rail cars up and down a graded track. These approaches aim to replicate the physics of pumped hydro, storing energy as gravitational potential energy, without requiring water or specific hilly topography. None have yet reached the scale of the six technologies discussed earlier in this report, and most remain in demonstration or early commercial phases, but they illustrate the range of engineering approaches being tested as the addressable market for multi-hour storage continues to expand alongside renewable generation.
+
+===== CHUNK 22 =====
+Page: 5
+
+Content:
+
+9. Glossary
+
+Round-trip efficiency: the percentage of energy put into a storage system that can later be retrieved, accounting for all conversion losses. Duration: the number of hours a storage system can discharge continuously at its rated power before depleting its stored energy. Power rating: the maximum rate, in megawatts, at which a storage system can charge or discharge, independent of how long it can sustain that rate. Energy arbitrage: the practice of charging storage when electricity prices are low and discharging when prices are high, profiting from the price difference. Frequency regulation: rapid, small adjustments to power output used to keep grid frequency stable, a service well suited to fast-responding technologies. Seasonal storage: storage intended to shift energy across weeks or months, such as storing summer solar surplus for use in winter, as distinct from daily or weekly cycling.
+
+LLM Router Response:
+```json
+{
+  "strategy": "single_section",
+  "sections": ["2. Lithium-Ion Batteries"]
+}
+```
+
+==============================
+QUERY ROUTING
+==============================
+Question: What is the efficiency of LFP batteries?
+Route: {
+  strategy: 'single_section',
+  sections: [ '2. Lithium-Ion Batteries' ]
+}
+
+==============================
+RETRIEVAL
+==============================
+Strategy: single_section
+Sections: [ '2. Lithium-Ion Batteries' ]
+
+Score: 0.5992693516495177
+Main Heading: 2. Lithium-Ion Batteries
+Subheading: null
+Page: 1
+Content: 2. Lithium-Ion Batteries
+
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past ten years, driven by steep cost declines that tracked the broader electric vehicle battery market. Utility-scale lithium-ion installations typically use either nickel manganese
+
+Score: 0.5144206321586735
+Main Heading: 2. Lithium-Ion Batteries
+Subheading: null
+Page: 1
+Content: 2. Lithium-Ion Batteries
+
+seconds to a few hours. The main limitation is duration: most deployed lithium-ion projects are sized for two to four hours of discharge, because adding more battery cells to extend duration further increases cost roughly linearly, unlike some other technologies where longe
+
+==============================
+ANSWER
+==============================
+Round-trip efficiency for lithium-ion systems is high, typically in the 85 to 95 percent range, and response times are near-instantaneous, making the technology well suited to short-duration applications such as frequency regulation and smoothing the output of solar farms over periods of seconds to a few hours.
+
+LLM Router Response:
+```json
+{
+  "strategy": "single_section",
+  "sections": ["8. Case Studies"]
+}
+```
+
+==============================
+QUERY ROUTING
+==============================
+Question: How long can the Bath County station operate?
+Route: { strategy: 'single_section', sections: [ '8. Case Studies' ] }
+
+==============================
+RETRIEVAL
+==============================
+Strategy: single_section
+Sections: [ '8. Case Studies' ]
+
+Score: 0.5532800029967425
+Main Heading: 8. Case Studies
+Subheading: 8.1 Bath County Pumped Storage Station (Virginia, USA)
+Page: 4
+Content: 8. Case Studies
+8.1 Bath County Pumped Storage Station (Virginia, USA)
+
+Commissioned in 1985, Bath County remains the largest pumped hydro facility in the world by generating capacity, at roughly 3,003 megawatts. The station uses a lower reservoir on the Back Creek and an upper reservoir roughly 1,2
+
+Score: 0.35118838562888777
+Main Heading: 8. Case Studies
+Subheading: 8.2 Hornsdale Power Reserve (South Australia)
+Page: 4
+Content: 8. Case Studies
+8.2 Hornsdale Power Reserve (South Australia)
+
+Hornsdale, commissioned in 2017 and expanded twice since, was among the first grid-scale lithium-ion battery installations to demonstrate that batteries could profitably compete in frequency-regulation and grid-stability markets previous
+
+Score: 0.2184981508844006
+Main Heading: 8. Case Studies
+Subheading: 8.3 Advanced Rail Energy Storage and Other Niche Approaches
+Page: 5
+Content: 8. Case Studies
+8.3 Advanced Rail Energy Storage and Other Niche Approaches
+
+Beyond the six mainstream categories, a number of niche mechanical storage concepts have been piloted at smaller scale, including gravity-based systems that raise and lower heavy weights in disused mine shafts or purpose-bu
+
+==============================
+ANSWER
+==============================
+At full output, the station can discharge for approximately eleven hours before the upper reservoir is depleted.
+
+LLM Router Response:
+```json
+{
+  "strategy": "multi_section",
+  "sections": ["2. Lithium-Ion Batteries", "1. Pumped Hydro Storage"]
+}
+```
+
+==============================
+QUERY ROUTING
+==============================
+Question: Compare lithium-ion batteries and pumped hydro.
+Route: {
+  strategy: 'multi_section',
+  sections: [ '2. Lithium-Ion Batteries', '1. Pumped Hydro Storage' ]
+}
+
+==============================
+RETRIEVAL
+==============================
+Strategy: multi_section
+Sections: [ '2. Lithium-Ion Batteries', '1. Pumped Hydro Storage' ]
+
+Score: 0.6668240713438391
+Main Heading: 1. Pumped Hydro Storage
+Subheading: null
+Page: 1
+Content: 1. Pumped Hydro Storage
+
+Pumped hydro storage (PHS) is the oldest and, by installed capacity, still the largest form of grid storage in the world, accounting for the great majority of global storage capacity measured in gigawatt-hours. The technology works by pumping water from a lower reservoir to 
+
+Score: 0.6110379520220042
+Main Heading: 2. Lithium-Ion Batteries
+Subheading: null
+Page: 1
+Content: 2. Lithium-Ion Batteries
+
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past ten years, driven by steep cost declines that tracked the broader electric vehicle battery market. Utility-scale lithium-ion installations typically use either nickel manganese
+
+Score: 0.5353844794221962
+Main Heading: 1. Pumped Hydro Storage
+Subheading: null
+Page: 1
+Content: 1. Pumped Hydro Storage
+
+included, and the technology requires specific topography: a significant elevation difference between two reservoirs within a manageable distance of one another. Because of these siting constraints, most of the world's easily developed pumped hydro sites in mountainous or hi
+
+Score: 0.5063398435047047
+Main Heading: 2. Lithium-Ion Batteries
+Subheading: null
+Page: 1
+Content: 2. Lithium-Ion Batteries
+
+seconds to a few hours. The main limitation is duration: most deployed lithium-ion projects are sized for two to four hours of discharge, because adding more battery cells to extend duration further increases cost roughly linearly, unlike some other technologies where longe
+
+==============================
+ANSWER
+==============================
+Here's a comparison of lithium-ion batteries and pumped hydro, based on the provided context:
+
+**Pumped Hydro Storage:**
+
+*   Is the oldest and largest form of grid storage.
+*   Works by pumping water uphill and releasing it downhill to generate electricity.
+*   Round-trip efficiency is 70-85%.
+*   Construction timelines are long (over a decade).
+*   Requires specific topography (significant elevation difference).
+*   Most easily developed sites have been built out, and new projects use closed-loop designs.
+
+**Lithium-Ion Batteries:**
+
+*   Has grown faster than any other grid storage technology in the past ten years.
+*   Uses NMC or LFP chemistries (LFP is now dominant).
+*   Round-trip efficiency is 85-95%.
+*   Response times are near-instantaneous.
+*   Main limitation is duration (typically 2-4 hours discharge).
+*   Adding more cells to extend duration increases cost linearly.
+*   Degradation is a factor, with capacity loss after several thousand charge cycles.
+
+LLM Router Response:
+```json
+{
+  "strategy": "multi_section",
+  "sections": ["1. Pumped Hydro Storage", "2. Lithium-Ion Batteries", "3. Flow Batteries", "4. Compressed Air Energy Storage", "5. Thermal Energy Storage", "6. Hydrogen-Based Storage"]
+}
+```
+
+==============================
+QUERY ROUTING
+==============================
+Question: What storage technologies are discussed in this document?
+Route: {
+  strategy: 'multi_section',
+  sections: [
+    '1. Pumped Hydro Storage',
+    '2. Lithium-Ion Batteries',
+    '3. Flow Batteries',
+    '4. Compressed Air Energy Storage',
+    '5. Thermal Energy Storage',
+    '6. Hydrogen-Based Storage'
+  ]
+}
+
+==============================
+RETRIEVAL
+==============================
+Strategy: multi_section
+Sections: [
+  '1. Pumped Hydro Storage',
+  '2. Lithium-Ion Batteries',
+  '3. Flow Batteries',
+  '4. Compressed Air Energy Storage',
+  '5. Thermal Energy Storage',
+  '6. Hydrogen-Based Storage'
+]
+
+Score: 0.4578695098023037
+Main Heading: 1. Pumped Hydro Storage
+Subheading: null
+Page: 1
+Content: 1. Pumped Hydro Storage
+
+Pumped hydro storage (PHS) is the oldest and, by installed capacity, still the largest form of grid storage in the world, accounting for the great majority of global storage capacity measured in gigawatt-hours. The technology works by pumping water from a lower reservoir to 
+
+Score: 0.45658996047692046
+Main Heading: 5. Thermal Energy Storage
+Subheading: null
+Page: 3
+Content: 5. Thermal Energy Storage
+
+Thermal storage systems store energy as heat or cold rather than as electricity directly, which is later converted back to electricity or used directly for heating and cooling purposes. Molten salt storage, most commonly paired with concentrated solar power plants, heats a
+
+Score: 0.4436974467750758
+Main Heading: 6. Hydrogen-Based Storage
+Subheading: null
+Page: 3
+Content: 6. Hydrogen-Based Storage
+
+Hydrogen storage uses surplus electricity to split water into hydrogen and oxygen through electrolysis, storing the hydrogen in tanks or underground caverns and later converting it back to electricity through a fuel cell or a hydrogen-capable gas turbine. The round trip th
+
+Score: 0.44152312526172477
+Main Heading: 2. Lithium-Ion Batteries
+Subheading: null
+Page: 1
+Content: 2. Lithium-Ion Batteries
+
+Lithium-ion battery storage has grown faster than any other grid storage technology over the past ten years, driven by steep cost declines that tracked the broader electric vehicle battery market. Utility-scale lithium-ion installations typically use either nickel manganese
+
+Score: 0.37190381924668087
+Main Heading: 3. Flow Batteries
+Subheading: null
+Page: 2
+Content: 3. Flow Batteries
+
+Flow batteries store energy in liquid electrolytes held in external tanks rather than in the electrode material itself, which is the key structural difference from lithium-ion cells. The most commercially mature chemistry is the vanadium redox flow battery, in which vanadium ions 
+
+==============================
+ANSWER
+==============================
+Pumped Hydro Storage, Thermal Energy Storage, Hydroge

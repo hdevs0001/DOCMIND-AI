@@ -262,37 +262,188 @@ const llm = new ChatOllama({
 // Stage 4: Metadata Filtering Test
 // ===============================
 
+// ------------------------------------
+// LLM-based Query Router
+// ------------------------------------
+
+async function routeQuery(question: string) {
+  const availableSections = [
+    {
+      name: "1. Pumped Hydro Storage",
+      description:
+        "Covers pumped hydro storage, how it works, efficiency, advantages, disadvantages, and operating characteristics.",
+    },
+
+    {
+      name: "2. Lithium-Ion Batteries",
+      description:
+        "Covers lithium-ion batteries, including LFP batteries, efficiency, characteristics, advantages, disadvantages, and applications.",
+    },
+
+    {
+      name: "3. Flow Batteries",
+      description:
+        "Covers flow battery technology, how it works, characteristics, advantages, disadvantages, and applications.",
+    },
+
+    {
+      name: "4. Compressed Air Energy Storage",
+      description:
+        "Covers compressed air energy storage, how it works, characteristics, advantages, disadvantages, and applications.",
+    },
+
+    {
+      name: "5. Thermal Energy Storage",
+      description:
+        "Covers thermal energy storage, how it works, characteristics, advantages, disadvantages, and applications.",
+    },
+
+    {
+      name: "6. Hydrogen-Based Storage",
+      description:
+        "Covers hydrogen energy storage, hydrogen production and storage, efficiency, advantages, disadvantages, and applications.",
+    },
+
+    {
+      name: "7. Comparing and Choosing Between Technologies",
+      description:
+        "Compares different energy storage technologies and discusses how to choose between them based on factors such as efficiency, duration, cost, and use case.",
+    },
+
+    {
+      name: "8. Case Studies",
+      description:
+        "Contains real-world energy storage case studies, including Bath County Pumped Storage Station, Hornsdale Power Reserve, and other storage projects.",
+    },
+
+    {
+      name: "9. Glossary",
+      description:
+        "Defines technical terms and concepts related to grid-scale energy storage.",
+    },
+  ];
+  const prompt = `
+You are a query router for a document retrieval system.
+
+Your job is to decide which document sections are needed
+to answer the user's question.
+
+Available sections:
+
+${availableSections
+  .map((section) => `- ${section.name}\n  Description: ${section.description}`)
+  .join("\n")}
+
+User question:
+${question}
+
+Choose one strategy:
+
+1. "single_section"
+   Use when the question can be answered mainly from one section.
+
+2. "multi_section"
+   Use when the question explicitly requires information
+   from multiple sections, such as comparison or combining facts.
+
+3. "global_search"
+   Use when the question is broad and is not limited to
+   a specific section.
+
+Important routing rules:
+
+- Choose the minimum number of sections needed to answer the question.
+- Do NOT select a section just because it is related to the topic.
+- If the question can be answered from one section, choose "single_section".
+- Use "multi_section" ONLY when the question explicitly requires
+  information from multiple sections.
+- For questions asking about a specific named entity, choose the
+  section that directly discusses that entity.
+- Use "global_search" when the answer requires searching broadly
+  across the document and the relevant sections cannot be determined
+  from the question.
+
+- If the question explicitly asks which technologies or topics are
+  discussed and those topics correspond directly to known sections,
+  "multi_section" is acceptable.
+
+Return ONLY valid JSON.
+
+For single_section:
+{
+  "strategy": "single_section",
+  "sections": ["section name"]
+}
+
+For multi_section:
+{
+  "strategy": "multi_section",
+  "sections": ["section name", "section name"]
+}
+
+For global_search:
+{
+  "strategy": "global_search",
+  "sections": []
+}
+`;
+
+  const response = await llm.invoke(prompt);
+
+  const raw = response.content.toString().trim();
+
+  console.log("\nLLM Router Response:");
+  console.log(raw);
+
+  const cleaned = raw
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    console.log("Could not parse router response.");
+
+    return {
+      strategy: "global_search",
+      sections: [],
+    };
+  }
+}
+
 const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
 
 // -----------------------------------
 // Query Router
 // -----------------------------------
 
-function routeQuery(question: string) {
-  const AskedQuestion = question.toLowerCase();
-  if (AskedQuestion.includes("lithium-ion")) {
-    return {
-      strategy: "metadata_filter",
-      filter: {
-        mainHeading: "2. Lithium-Ion Batteries",
-      },
-    };
-  }
+// function routeQuery(question: string) {
+//   const AskedQuestion = question.toLowerCase();
+//   if (AskedQuestion.includes("lithium-ion")) {
+//     return {
+//       strategy: "metadata_filter",
+//       filter: {
+//         mainHeading: "2. Lithium-Ion Batteries",
+//       },
+//     };
+//   }
 
-  //specific subsection
-  if (AskedQuestion.includes("bath county")) {
-    return {
-      strategy: "metadata_filter",
-      filter: {
-        subheading: "8.1 Bath County Pumped Storage Station (Virginia, USA)",
-      },
-    };
-  }
+//   //specific subsection
+//   if (AskedQuestion.includes("bath county")) {
+//     return {
+//       strategy: "metadata_filter",
+//       filter: {
+//         subheading: "8.1 Bath County Pumped Storage Station (Virginia, USA)",
+//       },
+//     };
+//   }
 
-  return {
-    strategy: "vector_search",
-  };
-}
+//   return {
+//     strategy: "vector_search",
+//   };
+// }
 
 //------------------------------------
 //Ask a Question
@@ -306,7 +457,7 @@ const testQuestions = [
 ];
 
 for (const question of testQuestions) {
-  const route = routeQuery(question);
+  const route = await routeQuery(question);
 
   console.log("\n==============================");
   console.log("QUERY ROUTING");
@@ -317,57 +468,125 @@ for (const question of testQuestions) {
 
   let results;
 
-  if (route.strategy === "metadata_filter") {
+  if (route.strategy === "single_section") {
+    const section = route.sections[0];
+
     results = await vectorStore.similaritySearchWithScore(
       question,
       5,
       (document) => {
-        if (route.filter?.mainHeading) {
-          return (
-            document.metadata.mainHeading ===
-            route.filter.mainHeading
-          );
-        }
+        return document.metadata.mainHeading === section;
+      },
+    );
+  } else if (route.strategy === "multi_section") {
+    const sections = route.sections;
 
-        if (route.filter?.subheading) {
-          return (
-            document.metadata.subheading ===
-            route.filter.subheading
-          );
-        }
-
-        return true;
+    results = await vectorStore.similaritySearchWithScore(
+      question,
+      5,
+      (document) => {
+        return sections.includes(document.metadata.mainHeading);
       },
     );
   } else {
-    results =
-      await vectorStore.similaritySearchWithScore(
-        question,
-        10,
-      );
+    results = await vectorStore.similaritySearchWithScore(question, 5);
   }
 
-  console.log("\nRETRIEVAL RESULTS");
-  console.log("Results found:", results.length);
+  // -----------------------------------
+  // Show retrieved chunks
+  // -----------------------------------
 
-  results.forEach(([document, score], index) => {
-    console.log(`\n--- Result ${index + 1} ---`);
+  console.log("\n==============================");
+  console.log("RETRIEVAL");
+  console.log("==============================");
 
-    console.log("Score:", score);
-    console.log(
-      "Main heading:",
-      document.metadata.mainHeading,
-    );
-    console.log(
-      "Subheading:",
-      document.metadata.subheading,
-    );
-    console.log(
-      "Page:",
-      document.metadata.loc?.pageNumber,
-    );
-  });
+  console.log("Strategy:", route.strategy);
+  console.log("Sections:", route.sections);
+
+  for (const [doc, score] of results) {
+    console.log("\nScore:", score);
+    console.log("Main Heading:", doc.metadata.mainHeading);
+    console.log("Subheading:", doc.metadata.subheading);
+    console.log("Page:", doc.metadata.loc?.pageNumber);
+    console.log("Content:", doc.pageContent.slice(0, 300));
+  }
+
+  const context = results.map(([doc]) => doc.pageContent).join("\n\n");
+
+  const answerPrompt = `
+Answer the user's question using ONLY the provided context.
+
+If the answer is not present in the context,
+say: "I do not have enough information in the provided context."
+
+Context:
+${context}
+
+Question:
+${question}
+`;
+
+  const answer = await llm.invoke(answerPrompt);
+
+  console.log("\n==============================");
+  console.log("ANSWER");
+  console.log("==============================");
+  console.log(answer.content);
 }
+
+//   let results;
+
+//   if (route.strategy === "metadata_filter") {
+//     results = await vectorStore.similaritySearchWithScore(
+//       question,
+//       5,
+//       (document) => {
+//         if (route.filter?.mainHeading) {
+//           return (
+//             document.metadata.mainHeading ===
+//             route.filter.mainHeading
+//           );
+//         }
+
+//         if (route.filter?.subheading) {
+//           return (
+//             document.metadata.subheading ===
+//             route.filter.subheading
+//           );
+//         }
+
+//         return true;
+//       },
+//     );
+//   } else {
+//     results =
+//       await vectorStore.similaritySearchWithScore(
+//         question,
+//         10,
+//       );
+//   }
+
+//   console.log("\nRETRIEVAL RESULTS");
+//   console.log("Results found:", results.length);
+
+//   results.forEach(([document, score], index) => {
+//     console.log(`\n--- Result ${index + 1} ---`);
+
+//     console.log("Score:", score);
+//     console.log(
+//       "Main heading:",
+//       document.metadata.mainHeading,
+//     );
+//     console.log(
+//       "Subheading:",
+//       document.metadata.subheading,
+//     );
+//     console.log(
+//       "Page:",
+//       document.metadata.loc?.pageNumber,
+//     );
+//   });
+// }
 // ------------------------------------
 // 5. Retrieval evaluation dataset
 // ------------------------------------
