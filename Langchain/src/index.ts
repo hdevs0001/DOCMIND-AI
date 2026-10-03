@@ -450,10 +450,20 @@ const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
 //------------------------------------
 
 const testQuestions = [
-  "What is the efficiency of LFP batteries?",
-  "How long can the Bath County station operate?",
-  "Compare lithium-ion batteries and pumped hydro.",
-  "What storage technologies are discussed in this document?",
+  "Why does round-trip efficiency matter when choosing an energy storage technology?",
+  "If a grid needs storage for several days and has no suitable mountainous terrain, which technologies discussed in the document could be considered, and why?",
+  // "What is the efficiency of LFP batteries?",
+  // "How long can the Bath County station operate?",
+  // "Compare lithium-ion batteries and pumped hydro.",
+  // "What storage technologies are discussed in this document?",
+
+  // // New Tests
+  // "What is the round-trip efficiency of hydrogen storage?",
+  // "How does flow battery storage work?",
+  // "What are the advantages of compressed air energy storage?",
+  // "Which technology is suitable for seasonal storage?",
+  // "What happened at Hornsdale Power Reserve?",
+  // "What does round-trip efficiency mean?",
 ];
 
 for (const question of testQuestions) {
@@ -479,15 +489,21 @@ for (const question of testQuestions) {
       },
     );
   } else if (route.strategy === "multi_section") {
-    const sections = route.sections;
-
-    results = await vectorStore.similaritySearchWithScore(
-      question,
-      5,
-      (document) => {
-        return sections.includes(document.metadata.mainHeading);
-      },
+    const sectionResults = await Promise.all(
+      route.sections.map(async (section: string) => {
+        return vectorStore.similaritySearchWithScore(
+          question,
+          3,
+          (document) => {
+            return document.metadata.mainHeading === section;
+          },
+        );
+      }),
     );
+
+    results = sectionResults.flat();
+
+    results.sort((a, b) => b[1] - a[1]);
   } else {
     results = await vectorStore.similaritySearchWithScore(question, 5);
   }
@@ -514,10 +530,23 @@ for (const question of testQuestions) {
   const context = results.map(([doc]) => doc.pageContent).join("\n\n");
 
   const answerPrompt = `
-Answer the user's question using ONLY the provided context.
+You are answering a user's question about a document.
 
-If the answer is not present in the context,
-say: "I do not have enough information in the provided context."
+Use the provided context as the primary source.
+
+Rules:
+
+1. First, determine whether the answer is supported by the context.
+
+2. If the answer is supported by the context:
+   - Answer using the document information.
+   - Do not add unrelated general knowledge.
+
+3. If the answer is NOT supported by the context:
+   - You may use your general knowledge.
+   - Clearly state:
+     "This information is not provided in the document. Based on general knowledge:"
+   - Never present general knowledge as if it came from the document.
 
 Context:
 ${context}
