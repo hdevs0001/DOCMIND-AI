@@ -3,23 +3,10 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { OllamaEmbeddings, ChatOllama } from "@langchain/ollama";
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
-// ------------------------------------
-// 1. Load PDF
-// ------------------------------------
 
 const loader = new PDFLoader("./pdfs/document.pdf");
-
 const docs = await loader.load();
-
 console.log("Pages:", docs.length);
-
-// ------------------------------------------
-// 2. Split into chunks
-// ------------------------------------------
-
-// ------------------------------------------
-// Structure-aware section chunking
-// ------------------------------------------
 
 function createHeadingAwareDocuments(docs: Document[]) {
   const sections: Document[] = [];
@@ -67,13 +54,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
 
       if (!line) continue;
 
-      // ------------------------------------------
-      // Subheading
-      // Example:
-      // 8.1 Bath County Pumped Storage Station
-      // 8.2 Hornsdale Power Reserve
-      // ------------------------------------------
-
       const subheadingMatch = line.match(/^\d+\.\d+\s+.+$/);
 
       if (subheadingMatch) {
@@ -84,12 +64,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
 
         continue;
       }
-
-      // ------------------------------------------
-      // Main heading
-      // Example:
-      // 8. Case Studies
-      // ------------------------------------------
 
       const mainHeadingMatch = line.match(/^\d+\.\s+.+$/);
 
@@ -102,10 +76,6 @@ function createHeadingAwareDocuments(docs: Document[]) {
 
         continue;
       }
-
-      // ------------------------------------------
-      // Normal body text
-      // ------------------------------------------
 
       currentBody += `${line} `;
 
@@ -121,17 +91,9 @@ function createHeadingAwareDocuments(docs: Document[]) {
   return sections;
 }
 
-// ------------------------------------------
-// 1. Create structure-aware sections
-// ------------------------------------------
-
 const sectionDocs = createHeadingAwareDocuments(docs);
 
 console.log("Sections:", sectionDocs.length);
-
-// ------------------------------------------
-// 2. Split large sections into smaller chunks
-// ------------------------------------------
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1000,
@@ -139,10 +101,6 @@ const splitter = new RecursiveCharacterTextSplitter({
 });
 
 const chunks = await splitter.splitDocuments(sectionDocs);
-
-// ------------------------------------------
-// 3. Add heading context to EVERY chunk
-// ------------------------------------------
 
 for (const chunk of chunks) {
   const mainHeading = chunk.metadata.mainHeading;
@@ -167,104 +125,16 @@ chunks.forEach((chunk, index) => {
   console.log(chunk.pageContent);
 });
 
-// ------------------------------------
-// 3. Connect to Ollama embeddings
-// ------------------------------------
-
 const embeddings = new OllamaEmbeddings({
   model: "qwen3-embedding:4b",
   baseUrl: "http://localhost:11434",
 });
-
-//-------------------------------------
-// creating the ollama chat
-//-------------------------------------
 
 const llm = new ChatOllama({
   model: "gemma3:4b",
   baseUrl: "http://localhost:11434",
   temperature: 0,
 });
-// ------------------------------------
-// Reranker
-// ------------------------------------
-
-// async function rerankDocuments(question: string, documents: Document[]) {
-//   const documentsText = documents
-//     .map(
-//       (document, index) => `
-// DOCUMENT ${index + 1}
-// Page: ${document.metadata.loc?.pageNumber}
-
-// ${document.pageContent}
-// `,
-//     )
-//     .join("\n--------------------\n");
-
-//   const prompt = `
-// You are a document relevance reranker.
-
-// Your task is to rank the documents according to how useful they are
-// for answering the user's question.
-
-// Question:
-// ${question}
-
-// Documents:
-// ${documentsText}
-
-// Return ONLY a JSON array.
-
-// The array must contain exactly one score for each document,
-// in the same order.
-
-// Use a score from 0 to 10:
-
-// 10 = directly answers the question
-// 8-9 = highly relevant
-// 5-7 = somewhat relevant
-// 1-4 = weakly relevant
-// 0 = irrelevant
-
-// Example:
-// [9, 2, 7, 1]
-
-// Do not include explanations.
-// Do not include markdown.
-// `;
-
-//   const response = await llm.invoke(prompt);
-
-//   const raw = response.content.toString().trim();
-
-//   console.log("Reranker response:", raw);
-
-//   let scores: number[];
-
-//   try {
-//     scores = JSON.parse(raw);
-//   } catch {
-//     console.log("Could not parse reranker response.");
-//     return documents.map((document) => ({
-//       document,
-//       score: 0,
-//     }));
-//   }
-
-//   return documents
-//     .map((document, index) => ({
-//       document,
-//       score: Number(scores[index]) || 0,
-//     }))
-//     .sort((a, b) => b.score - a.score);
-// }
-// ===============================
-// Stage 4: Metadata Filtering Test
-// ===============================
-
-// ------------------------------------
-// LLM-based Query Router
-// ------------------------------------
 
 async function routeQuery(question: string) {
   const availableSections = [
@@ -343,16 +213,67 @@ Choose one strategy:
    Use when the question can be answered mainly from one section.
 
 2. "multi_section"
-   Use when the question explicitly requires information
-   from multiple sections, such as comparison or combining facts.
+   Use when the question requires information from multiple sections.
 
 3. "global_search"
-   Use when the question is broad and is not limited to
-   a specific section.
+  Use when the answer requires searching broadly
+across the document and the relevant sections cannot be determined
+from the question.
 
+4. "not_in_document"
+   Use when the question is clearly unrelated to the document
+   or asks for information that this document does not cover.
+Important:
+
+Before selecting a section, determine whether the question is
+actually answerable from this document.
+
+Do NOT force an unrelated question into the closest-looking section.
+
+For example:
+- "What is the difference between supervised and unsupervised learning?"
+  → "not_in_document"
+- "What is the efficiency of lithium-ion batteries?"
+  → section 2
+- "How does lithium-ion compare with pumped hydro?"
+  → sections 1 and 2
+  
 Important routing rules:
 
-- Choose the minimum number of sections needed to answer the question.
+Choose the minimum number of sections that contain the evidence
+needed to answer the question.
+
+Think about all constraints and requirements in the question.
+
+Include a section if it contains evidence needed to:
+- answer the question directly
+- evaluate a constraint
+- rule out an option
+- compare alternatives
+- explain why an option is suitable or unsuitable
+
+Important for constraint-based questions:
+
+When a question contains multiple constraints or conditions,
+identify ALL of them before selecting sections.
+
+For example, if a question asks about:
+- a specific storage duration
+- a geographic limitation
+- a technology comparison
+- cost or efficiency requirements
+
+select sections containing evidence needed to evaluate each
+constraint.
+
+Do not select sections based only on the first part of the question.
+
+For questions involving storage duration, consider sections that
+discuss technologies suitable for the requested duration, even if
+those technologies are not explicitly named in the question.
+
+Do NOT select a section merely because it is topically related.
+
 - Do NOT select a section just because it is related to the topic.
 - If the question can be answered from one section, choose "single_section".
 - Use "multi_section" ONLY when the question explicitly requires
@@ -384,6 +305,11 @@ For multi_section:
 For global_search:
 {
   "strategy": "global_search",
+  "sections": []
+}
+  For not_in_document:
+{
+  "strategy": "not_in_document",
   "sections": []
 }
 `;
@@ -449,40 +375,136 @@ const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings);
 //Ask a Question
 //------------------------------------
 
-const testQuestions = [
-  "Why does round-trip efficiency matter when choosing an energy storage technology?",
-  "If a grid needs storage for several days and has no suitable mountainous terrain, which technologies discussed in the document could be considered, and why?",
-  // "What is the efficiency of LFP batteries?",
-  // "How long can the Bath County station operate?",
-  // "Compare lithium-ion batteries and pumped hydro.",
-  // "What storage technologies are discussed in this document?",
+const evaluationQuestions = [
+  {
+    id: 1,
+    type: "direct_fact",
+    question: "What is the round-trip efficiency of lithium-ion batteries?",
+    expectedSections: ["2. Lithium-Ion Batteries"],
+  },
 
-  // // New Tests
-  // "What is the round-trip efficiency of hydrogen storage?",
-  // "How does flow battery storage work?",
-  // "What are the advantages of compressed air energy storage?",
-  // "Which technology is suitable for seasonal storage?",
-  // "What happened at Hornsdale Power Reserve?",
-  // "What does round-trip efficiency mean?",
+  {
+    id: 2,
+    type: "named_entity",
+    question: "How long can Bath County operate at full output?",
+    expectedSections: ["8. Case Studies"],
+  },
+
+  {
+    id: 3,
+    type: "comparison",
+    question: "How do lithium-ion batteries compare with pumped hydro?",
+    expectedSections: [
+      "1. Pumped Hydro Storage",
+      "2. Lithium-Ion Batteries",
+      "7. Comparing and Choosing Between Technologies",
+    ],
+  },
+
+  {
+    id: 4,
+    type: "broad",
+    question: "What storage technologies are discussed in this document?",
+    expectedSections: [
+      "1. Pumped Hydro Storage",
+      "2. Lithium-Ion Batteries",
+      "3. Flow Batteries",
+      "4. Compressed Air Energy Storage",
+      "5. Thermal Energy Storage",
+      "6. Hydrogen-Based Storage",
+    ],
+  },
+
+  {
+    id: 5,
+    type: "multi_section",
+    question:
+      "What are the main differences between lithium-ion and hydrogen storage?",
+    expectedSections: [
+      "2. Lithium-Ion Batteries",
+      "6. Hydrogen-Based Storage",
+      "7. Comparing and Choosing Between Technologies",
+    ],
+  },
+
+  {
+    id: 6,
+    type: "multi_constraint",
+    question:
+      "If a grid needs storage for several days and has no suitable mountainous terrain, which technologies discussed in the document could be considered, and why?",
+    expectedSections: [
+      "1. Pumped Hydro Storage",
+      "2. Lithium-Ion Batteries",
+      "4. Compressed Air Energy Storage",
+      "6. Hydrogen-Based Storage",
+      "7. Comparing and Choosing Between Technologies",
+    ],
+  },
+
+  {
+    id: 7,
+    type: "paraphrased",
+    question:
+      "How efficient are lithium-ion systems when charging and discharging?",
+    expectedSections: ["2. Lithium-Ion Batteries"],
+  },
+
+  {
+    id: 8,
+    type: "missing_information",
+    question:
+      "What is the manufacturing cost of lithium-ion batteries in 2026?",
+    expectedSections: [],
+  },
+
+  {
+    id: 9,
+    type: "out_of_document",
+    question:
+      "What is the difference between supervised and unsupervised learning?",
+    expectedSections: [],
+  },
+
+  {
+    id: 10,
+    type: "reasoning",
+    question:
+      "Why might hydrogen be considered for longer-duration storage instead of lithium-ion batteries?",
+    expectedSections: [
+      "2. Lithium-Ion Batteries",
+      "6. Hydrogen-Based Storage",
+      "7. Comparing and Choosing Between Technologies",
+    ],
+  },
+  {
+    id: 11,
+    type: "DSA",
+    question: "Give me a Binary search code ?",
+    expectedSections: [
+      "2. Lithium-Ion Batteries",
+      "6. Hydrogen-Based Storage",
+      "7. Comparing and Choosing Between Technologies",
+    ],
+  },
 ];
 
-for (const question of testQuestions) {
-  const route = await routeQuery(question);
+for (const question of evaluationQuestions) {
+  const route = await routeQuery(question.question);
 
   console.log("\n==============================");
   console.log("QUERY ROUTING");
   console.log("==============================");
 
-  console.log("Question:", question);
+  console.log("Question:", question.question);
   console.log("Route:", route);
 
-  let results;
+let results: [Document, number][] = [];
 
   if (route.strategy === "single_section") {
     const section = route.sections[0];
 
     results = await vectorStore.similaritySearchWithScore(
-      question,
+      question.question,
       5,
       (document) => {
         return document.metadata.mainHeading === section;
@@ -492,7 +514,7 @@ for (const question of testQuestions) {
     const sectionResults = await Promise.all(
       route.sections.map(async (section: string) => {
         return vectorStore.similaritySearchWithScore(
-          question,
+          question.question,
           3,
           (document) => {
             return document.metadata.mainHeading === section;
@@ -504,55 +526,92 @@ for (const question of testQuestions) {
     results = sectionResults.flat();
 
     results.sort((a, b) => b[1] - a[1]);
-  } else {
-    results = await vectorStore.similaritySearchWithScore(question, 5);
+  } else if (route.strategy === "not_in_document") {
+    console.log("\n==============================");
+    console.log("ANSWER");
+    console.log("==============================");
+    console.log(
+      "The provided document does not contain enough information to answer this question.",
+    );
+
+    continue;
+  } else if (route.strategy === "global_search") {
+    results = await vectorStore.similaritySearchWithScore(question.question, 5);
   }
 
-  // -----------------------------------
-  // Show retrieved chunks
-  // -----------------------------------
+  // console.log("\n==============================");
+  // console.log("RETRIEVAL");
+  // console.log("==============================");
 
-  console.log("\n==============================");
-  console.log("RETRIEVAL");
-  console.log("==============================");
+  // console.log("Strategy:", route.strategy);
+  // console.log("Sections:", route.sections);
 
-  console.log("Strategy:", route.strategy);
-  console.log("Sections:", route.sections);
-
-  for (const [doc, score] of results) {
-    console.log("\nScore:", score);
-    console.log("Main Heading:", doc.metadata.mainHeading);
-    console.log("Subheading:", doc.metadata.subheading);
-    console.log("Page:", doc.metadata.loc?.pageNumber);
-    console.log("Content:", doc.pageContent.slice(0, 300));
-  }
+  // for (const [doc, score] of results) {
+  //   console.log("\nScore:", score);
+  //   console.log("Main Heading:", doc.metadata.mainHeading);
+  //   console.log("Subheading:", doc.metadata.subheading);
+  //   console.log("Page:", doc.metadata.loc?.pageNumber);
+  //   console.log("Content:", doc.pageContent.slice(0, 300));
+  // }
 
   const context = results.map(([doc]) => doc.pageContent).join("\n\n");
 
   const answerPrompt = `
-You are answering a user's question about a document.
+You are answering a user's question using ONLY the information provided
+in the retrieved document context.
 
-Use the provided context as the primary source.
+Your goal is to give a concise, accurate, natural answer that is fully
+grounded in the retrieved context.
 
 Rules:
 
-1. First, determine whether the answer is supported by the context.
+1. Use ONLY the retrieved document context to answer the question.
 
-2. If the answer is supported by the context:
-   - Answer using the document information.
-   - Do not add unrelated general knowledge.
+2. Do NOT use general knowledge, outside knowledge, assumptions, or facts
+   that are not supported by the retrieved context.
 
-3. If the answer is NOT supported by the context:
-   - You may use your general knowledge.
-   - Clearly state:
-     "This information is not provided in the document. Based on general knowledge:"
-   - Never present general knowledge as if it came from the document.
+3. If the retrieved context directly supports the answer, answer using
+   those facts and paraphrase them naturally.
+
+4. If the retrieved context does not contain enough information to answer
+   the question, clearly say:
+
+   "The provided document does not contain enough information to answer
+   this question."
+
+5. If only part of the question can be answered, answer the supported
+   part and clearly state which part cannot be answered from the document.
+
+6. For comparison questions, use information about ALL relevant subjects
+   found in the context. Do not focus on only one subject if the question
+   asks for a comparison.
+
+7. For questions asking for multiple items, make sure to include ALL
+   relevant items supported by the context.
+
+8. For reasoning questions, you may combine multiple facts from the
+   context to form a reasonable conclusion, but do not introduce facts
+   that are not present in the context.
+
+9. If the question asks for a specific number, date, cost, efficiency,
+   duration, or other factual value, provide it only if that information
+   exists in the context.
+
+10. Do not guess, fill gaps, or invent information.
+
+11. Do not reproduce long passages or quotations from the document.
+    Paraphrase the relevant information.
+
+12. Keep the answer concise and directly answer the user's question.
+
+13. Do not mention the retrieval process, chunks, embeddings, vector
+    search, routing, or the context itself.
 
 Context:
 ${context}
 
 Question:
-${question}
+${question.question}
 `;
 
   const answer = await llm.invoke(answerPrompt);
@@ -562,324 +621,3 @@ ${question}
   console.log("==============================");
   console.log(answer.content);
 }
-
-//   let results;
-
-//   if (route.strategy === "metadata_filter") {
-//     results = await vectorStore.similaritySearchWithScore(
-//       question,
-//       5,
-//       (document) => {
-//         if (route.filter?.mainHeading) {
-//           return (
-//             document.metadata.mainHeading ===
-//             route.filter.mainHeading
-//           );
-//         }
-
-//         if (route.filter?.subheading) {
-//           return (
-//             document.metadata.subheading ===
-//             route.filter.subheading
-//           );
-//         }
-
-//         return true;
-//       },
-//     );
-//   } else {
-//     results =
-//       await vectorStore.similaritySearchWithScore(
-//         question,
-//         10,
-//       );
-//   }
-
-//   console.log("\nRETRIEVAL RESULTS");
-//   console.log("Results found:", results.length);
-
-//   results.forEach(([document, score], index) => {
-//     console.log(`\n--- Result ${index + 1} ---`);
-
-//     console.log("Score:", score);
-//     console.log(
-//       "Main heading:",
-//       document.metadata.mainHeading,
-//     );
-//     console.log(
-//       "Subheading:",
-//       document.metadata.subheading,
-//     );
-//     console.log(
-//       "Page:",
-//       document.metadata.loc?.pageNumber,
-//     );
-//   });
-// }
-// ------------------------------------
-// 5. Retrieval evaluation dataset
-// ------------------------------------
-
-// const evaluationSet = [
-//   {
-//     question: "What is the round-trip efficiency of lithium-ion batteries?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "What is the round-trip efficiency of lithium-ion systems?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "What percentage of energy can lithium-ion batteries recover?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "What is the efficiency of lithium-ion battery storage?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "What is the typical round-trip efficiency for lithium-ion?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "How efficient are lithium-ion batteries for grid storage?",
-//     expectedHeading: "2. Lithium-Ion Batteries",
-//   },
-//   {
-//     question: "What is the round-trip efficiency of pumped hydro storage?",
-//     expectedHeading: "1. Pumped Hydro Storage",
-//   },
-//   {
-//     question: "What is the round-trip efficiency of hydrogen storage?",
-//     expectedHeading: "6. Hydrogen-Based Storage",
-//   },
-//   {
-//     question: "Where is Bath County discussed?",
-//     expectedHeading: "8. Case Studies",
-//     expectedSubheading:
-//       "8.1 Bath County Pumped Storage Station (Virginia, USA)",
-//   },
-// ];
-
-// ------------------------------------
-// 6. Run retrieval evaluation
-// ------------------------------------
-
-// console.log("\n========== RETRIEVAL EVALUATION ==========\n");
-
-// let hitAt1Count = 0;
-// let hitAt3Count = 0;
-
-// for (const [index, test] of evaluationSet.entries()) {
-//   console.log(`\n===== QUESTION ${index + 1} =====`);
-
-//   console.log("Question:", test.question);
-//   console.log("Expected heading:", test.expectedHeading);
-
-//   // ------------------------------------
-//   // 1. Retrieve top 3 using normal similarity
-//   // ------------------------------------
-
-//   // const results = await vectorStore.similaritySearchWithScore(test.question, 3);
-//   // ------------------------------------
-//   // 1. Retrieve top 10 candidates
-//   // ------------------------------------
-
-// const candidateResults =
-//   await vectorStore.similaritySearchWithScore(
-//     test.question,
-//     10,
-//     (document) =>
-//       document.metadata.mainHeading ===
-//       "2. Lithium-Ion Batteries",
-//   );
-
-//   // Remove similarity scores.
-//   // Reranker only needs the documents.
-//   const candidateDocuments = candidateResults.map(([document]) => document);
-
-//   // ------------------------------------
-//   // 2. Rerank top 10 candidates
-//   // ------------------------------------
-
-//   const rerankedResults = await rerankDocuments(
-//     test.question,
-//     candidateDocuments,
-//   );
-
-//   // ------------------------------------
-//   // 3. Take top 3 after reranking
-//   // ------------------------------------
-
-//   const results = rerankedResults.slice(0, 3);
-
-//   // ------------------------------------
-//   // 2. Get retrieved headings
-//   // ------------------------------------
-//   const retrievedHeadings = results.map(
-//     ({document}) => document.metadata.mainHeading,
-//   );
-//   console.log("Retrieved headings:", retrievedHeadings);
-//   const hitAt1 = (() => {
-//    const document = results[0].document;
-
-//     const headingMatches =
-//       document.metadata.mainHeading === test.expectedHeading;
-
-//     if (test.expectedSubheading) {
-//       return (
-//         headingMatches &&
-//         document.metadata.subheading === test.expectedSubheading
-//       );
-//     }
-
-//     return headingMatches;
-//   })();
-
-//   const hitAt3 = results.some(({document}) => {
-//     const headingMatches =
-//       document.metadata.mainHeading === test.expectedHeading;
-
-//     if (test.expectedSubheading) {
-//       return (
-//         headingMatches &&
-//         document.metadata.subheading === test.expectedSubheading
-//       );
-//     }
-
-//     return headingMatches;
-//   });
-
-//   if (hitAt1) {
-//     console.log("Hit@1: ✅");
-//     hitAt1Count++;
-//   } else {
-//     console.log("Hit@1: ❌");
-//   }
-
-//   if (hitAt3) {
-//     console.log("Hit@3: ✅");
-//     hitAt3Count++;
-//   } else {
-//     console.log("Hit@3: ❌");
-//   }
-
-//   // ------------------------------------
-//   // 5. Show retrieved documents
-//   // ------------------------------------
-
-//   results.forEach(({document, score}, resultIndex) => {
-//     console.log(`\n--- Result ${resultIndex + 1} ---`);
-
-//     console.log("Similarity score:", score);
-
-//     console.log("Main heading:", document.metadata.mainHeading);
-
-//     console.log("Subheading:", document.metadata.subheading);
-
-//     console.log("Page:", document.metadata.loc?.pageNumber);
-//   });
-// }
-
-// ------------------------------------
-// 7. Calculate metrics
-// ------------------------------------
-
-// const totalQuestions = evaluationSet.length;
-
-// const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
-
-// const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
-
-// console.log("\n==========================================");
-
-// console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
-
-// console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
-
-// console.log("");
-
-// console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
-
-// console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
-
-// console.log("==========================================");
-//added this part
-// const results = await vectorStore.maxMarginalRelevanceSearch(test.question, {
-//   k: 3,
-//   fetchK: 10,
-// });
-//   //commented this part
-//   // const retrievedPages = results.map(
-//   //   ([document]) => document.metadata.loc?.pageNumber,
-//   // );
-//   // const retrievedPages = results.map(
-//   //   (document) => document.metadata.loc?.pageNumber,
-//   // );
-
-//   console.log("Expected page:", test.expectedPage);
-//   console.log("Retrieved pages:", retrievedPages);
-
-//   // Hit@1
-//   const hitAt1 = retrievedPages[0] === test.expectedPage;
-
-//   // Hit@3
-//   const hitAt3 = retrievedPages.includes(test.expectedPage);
-
-//   if (hitAt1) {
-//     console.log("Hit@1: ✅");
-//     hitAt1Count++;
-//   } else {
-//     console.log("Hit@1: ❌");
-//   }
-
-//   if (hitAt3) {
-//     console.log("Hit@3: ✅");
-//     hitAt3Count++;
-//   } else {
-//     console.log("Hit@3: ❌");
-//   }
-
-//   results.forEach(([document, score], resultIndex) => {
-//     console.log(`\n--- Result ${resultIndex + 1} ---`);
-
-//     console.log("Score:", score);
-
-//     console.log("Page:", document.metadata.loc?.pageNumber);
-
-//     console.log("Content:");
-
-//     console.log(document.pageContent);
-//   });
-
-//   // results.forEach((document, resultIndex) => {
-//   //   console.log(`\n--- Result ${resultIndex + 1} ---`);
-//   //   console.log("Page:", document.metadata.loc?.pageNumber);
-//   //   console.log("Main heading:", document.metadata.mainHeading);
-//   //   console.log("Subheading:", document.metadata.subheading);
-//   //   console.log("Content:");
-//   //   console.log(document.pageContent);
-//   // });
-// }
-
-// // ------------------------------------
-// // 7. Calculate metrics
-// // ------------------------------------
-// // Show retrieved results
-
-// const totalQuestions = evaluationSet.length;
-
-// const hitAt1Rate = (hitAt1Count / totalQuestions) * 100;
-// const hitAt3Rate = (hitAt3Count / totalQuestions) * 100;
-
-// console.log("\n==========================================");
-
-// console.log(`Hit@1: ${hitAt1Count}/${totalQuestions}`);
-// console.log(`Hit@1 Rate: ${hitAt1Rate.toFixed(1)}%`);
-
-// console.log("");
-
-// console.log(`Hit@3: ${hitAt3Count}/${totalQuestions}`);
-// console.log(`Hit@3 Rate: ${hitAt3Rate.toFixed(1)}%`);
-
-// console.log("==========================================");
