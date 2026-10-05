@@ -137,61 +137,61 @@ const llm = new ChatOllama({
 });
 
 async function routeQuery(question: string) {
-  const availableSections = [
-    {
-      name: "1. Pumped Hydro Storage",
-      description:
-        "Covers pumped hydro storage, how it works, efficiency, advantages, disadvantages, and operating characteristics.",
-    },
+const availableSections = [
+  {
+    name: "1. Pumped Hydro Storage",
+    description:
+      "Covers pumped hydro storage, how it works, round-trip efficiency, advantages, disadvantages, operating duration, and its dependence on suitable geographic topography, elevation, and water resources.",
+  },
 
-    {
-      name: "2. Lithium-Ion Batteries",
-      description:
-        "Covers lithium-ion batteries, including LFP batteries, efficiency, characteristics, advantages, disadvantages, and applications.",
-    },
+  {
+    name: "2. Lithium-Ion Batteries",
+    description:
+      "Covers lithium-ion batteries, including LFP batteries, round-trip efficiency, near-instantaneous response, typical 2-4 hour duration, advantages, disadvantages, cost considerations, and applications.",
+  },
 
-    {
-      name: "3. Flow Batteries",
-      description:
-        "Covers flow battery technology, how it works, characteristics, advantages, disadvantages, and applications.",
-    },
+  {
+    name: "3. Flow Batteries",
+    description:
+      "Covers flow battery technology, how it works, round-trip efficiency, typical 4-12 hour duration, advantages, disadvantages, scalability, and applications.",
+  },
 
-    {
-      name: "4. Compressed Air Energy Storage",
-      description:
-        "Covers compressed air energy storage, how it works, characteristics, advantages, disadvantages, and applications.",
-    },
+  {
+    name: "4. Compressed Air Energy Storage",
+    description:
+      "Covers compressed air energy storage, including traditional, adiabatic, and isothermal approaches, round-trip efficiency, duration, advantages, disadvantages, geographic requirements, and applications.",
+  },
 
-    {
-      name: "5. Thermal Energy Storage",
-      description:
-        "Covers thermal energy storage, how it works, characteristics, advantages, disadvantages, and applications.",
-    },
+  {
+    name: "5. Thermal Energy Storage",
+    description:
+      "Covers thermal energy storage, how it works, characteristics, duration, advantages, disadvantages, and applications.",
+  },
 
-    {
-      name: "6. Hydrogen-Based Storage",
-      description:
-        "Covers hydrogen energy storage, hydrogen production and storage, efficiency, advantages, disadvantages, and applications.",
-    },
+  {
+    name: "6. Hydrogen-Based Storage",
+    description:
+      "Covers hydrogen-based energy storage, hydrogen production and storage, round-trip efficiency, long-duration and seasonal storage, underground salt cavern storage, advantages, disadvantages, and applications.",
+  },
 
-    {
-      name: "7. Comparing and Choosing Between Technologies",
-      description:
-        "Compares different energy storage technologies and discusses how to choose between them based on factors such as efficiency, duration, cost, and use case.",
-    },
+  {
+    name: "7. Comparing and Choosing Between Technologies",
+    description:
+      "Compares different energy storage technologies and discusses how to choose between them based on efficiency, duration, cost, geographic requirements, scalability, and use case.",
+  },
 
-    {
-      name: "8. Case Studies",
-      description:
-        "Contains real-world energy storage case studies, including Bath County Pumped Storage Station, Hornsdale Power Reserve, and other storage projects.",
-    },
+  {
+    name: "8. Case Studies",
+    description:
+      "Contains real-world energy storage case studies, including Bath County Pumped Storage Station, Hornsdale Power Reserve, and other storage projects.",
+  },
 
-    {
-      name: "9. Glossary",
-      description:
-        "Defines technical terms and concepts related to grid-scale energy storage.",
-    },
-  ];
+  {
+    name: "9. Glossary",
+    description:
+      "Defines technical terms and concepts related to grid-scale energy storage.",
+  },
+];
   const prompt = `
 You are a query router for a document retrieval system.
 
@@ -240,33 +240,89 @@ For example:
   
 Important routing rules:
 
-Choose the minimum number of sections that contain the evidence
-needed to answer the question.
+Choose the MINIMUM number of sections needed to answer the question.
 
-Think about all constraints and requirements in the question.
+Before selecting sections, first identify what the question is actually
+asking and all conditions that the answer must satisfy.
 
-Include a section if it contains evidence needed to:
-- answer the question directly
+For every question:
+
+1. Identify the main information being requested.
+2. Identify ALL constraints or conditions.
+3. Determine what evidence is needed to evaluate those constraints.
+4. Select only the sections containing that evidence.
+5. Prefer the smallest set of sections that can answer the question.
+
+A constraint is a condition that an answer must satisfy.
+
+Examples of constraints include:
+- required storage duration
+- geographic limitations
+- efficiency requirements
+- cost requirements
+- technology comparison
+- specific location or project
+- specific year or time period
+- advantages or disadvantages
+- suitability for a particular use case
+
+For constraint-based questions:
+
+Do NOT select a section merely because it is related to the topic.
+
+Select a section when its information is needed to:
+- answer the question
 - evaluate a constraint
+- determine whether an option satisfies a constraint
 - rule out an option
 - compare alternatives
 - explain why an option is suitable or unsuitable
 
-Important for constraint-based questions:
+IMPORTANT:
 
-When a question contains multiple constraints or conditions,
-identify ALL of them before selecting sections.
+A technology should NOT be considered suitable for a constraint unless
+the available section descriptions provide evidence supporting that
+conclusion.
 
-For example, if a question asks about:
-- a specific storage duration
-- a geographic limitation
-- a technology comparison
-- cost or efficiency requirements
+For example:
 
-select sections containing evidence needed to evaluate each
-constraint.
+Question:
+"Which technologies could provide several days of storage without
+suitable mountainous terrain?"
 
-Do not select sections based only on the first part of the question.
+First identify the constraints:
+
+- long-duration / several-days storage
+- no suitable mountainous terrain
+- identify technologies discussed in the document
+- explain why they could be considered
+
+Do NOT assume that a technology described as "4-12 hours" automatically
+satisfies a "several days" requirement.
+
+Do NOT assume that a technology satisfies a geographic constraint unless
+the document provides evidence about its geographic requirements.
+
+For questions asking which technologies satisfy multiple conditions,
+consider each technology against ALL stated conditions before selecting
+its section.
+
+Use "single_section" when one section contains enough information to
+answer the complete question.
+
+Use "multi_section" when answering the complete question requires
+evidence from multiple sections, even if the question does not explicitly
+say "compare" or "use multiple sections".
+
+Use "global_search" only when the question is broad and the relevant
+sections cannot reasonably be identified from the question.
+
+For questions about a specific named entity, prefer the section that
+directly discusses that entity.
+
+Prefer fewer sections when they are sufficient.
+
+Do NOT add a section simply because it is topically related.
 
 For questions involving storage duration, consider sections that
 discuss technologies suitable for the requested duration, even if
