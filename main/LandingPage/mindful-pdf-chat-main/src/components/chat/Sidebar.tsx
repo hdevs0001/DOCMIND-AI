@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  FileText, History, MoreHorizontal, PanelLeftClose, Pin, PinOff, Search, Settings, SquarePen, Trash2, X,
+  FileText, History, MoreHorizontal, PanelLeftClose, Pencil, Pin, PinOff, Search, Settings, SquarePen, Trash2, X,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "./Logo";
 import type { ChatSummary } from "./types";
@@ -18,6 +19,7 @@ type Props = {
   activeChatId: string | null;
   onSelect: (id: string) => void;
   onNewChat: () => void;
+  onRename: (id: string, title: string) => Promise<void>;
   onTogglePin: (id: string) => void;
   onDelete: (id: string) => void;
 };
@@ -29,37 +31,95 @@ function SidebarBody(p: Props & { mobile?: boolean }) {
   const pinned = p.chats.filter((c) => c.pinned);
   const recent = p.chats.filter((c) => !c.pinned);
 
-  const Row = ({ c }: { c: ChatSummary }) => (
-    <li className="group relative">
-      <button
-        onClick={() => p.onSelect(c.id)}
-        className={cn(
-          "w-full truncate rounded-lg px-3 py-2 pr-9 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          p.activeChatId === c.id
-            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+  const Row = ({ c }: { c: ChatSummary }) => {
+    const [editing, setEditing] = React.useState(false);
+    const [title, setTitle] = React.useState(c.title);
+    const [saving, setSaving] = React.useState(false);
+
+    React.useEffect(() => setTitle(c.title), [c.title]);
+
+    const save = async () => {
+      const next = title.trim();
+      if (!next || next === c.title) {
+        setEditing(false);
+        setTitle(c.title);
+        return;
+      }
+
+      setSaving(true);
+      try {
+        await p.onRename(c.id, next);
+        setEditing(false);
+      } finally {
+        setSaving(false);
+      }
+    };
+
+    return (
+      <li className="group relative">
+        {editing ? (
+          <div className="flex items-center gap-1 rounded-lg bg-sidebar-accent p-1">
+            <Input
+              autoFocus
+              value={title}
+              disabled={saving}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void save();
+                if (e.key === "Escape") {
+                  setEditing(false);
+                  setTitle(c.title);
+                }
+              }}
+              className="h-8 border-0 bg-transparent px-2 text-sm shadow-none focus-visible:ring-0"
+              aria-label="Chat name"
+            />
+            <button
+              onClick={() => void save()}
+              disabled={saving}
+              className="grid size-7 place-items-center rounded-md text-xs text-primary hover:bg-accent disabled:opacity-50"
+              aria-label="Save chat name"
+            >
+              ✓
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => p.onSelect(c.id)}
+              className={cn(
+                "w-full truncate rounded-lg px-3 py-2 pr-9 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                p.activeChatId === c.id
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+            >
+              {c.title}
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label={`Options for ${c.title}`}
+                className="absolute right-1 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground opacity-0 transition hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100 data-[state=open]:opacity-100"
+              >
+                <MoreHorizontal size={16} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="glass-strong rounded-xl">
+                <DropdownMenuItem onClick={() => setEditing(true)}>
+                  <Pencil size={14} /> Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => p.onTogglePin(c.id)}>
+                  {c.pinned ? <PinOff size={14} /> : <Pin size={14} />} {c.pinned ? "Unpin" : "Pin"}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => p.onDelete(c.id)}>
+                  <Trash2 size={14} /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         )}
-      >
-        {c.title}
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          aria-label={`Options for ${c.title}`}
-          className="absolute right-1 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground opacity-0 transition hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100 data-[state=open]:opacity-100"
-        >
-          <MoreHorizontal size={16} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="glass-strong rounded-xl">
-          <DropdownMenuItem onClick={() => p.onTogglePin(c.id)}>
-            {c.pinned ? <PinOff size={14} /> : <Pin size={14} />} {c.pinned ? "Unpin" : "Pin"}
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => p.onDelete(c.id)}>
-            <Trash2 size={14} /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </li>
-  );
+      </li>
+    );
+  };
 
   return (
     <div className="flex h-full w-[260px] flex-col gap-4 p-3">
@@ -118,6 +178,8 @@ function SidebarBody(p: Props & { mobile?: boolean }) {
     </div>
   );
 }
+
+import * as React from "react";
 
 export function Sidebar(props: Props) {
   return (
