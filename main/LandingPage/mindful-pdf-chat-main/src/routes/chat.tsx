@@ -11,7 +11,7 @@ import { MessageList } from "@/components/chat/MessageList";
 import { PdfPreviewPanel } from "@/components/chat/PdfPreviewPanel";
 import type { ChatMessage, ChatSummary } from "@/components/chat/types";
 import { createChat, deleteChat, listChats, renameChat, toggleChatPin } from "@/lib/chat.functions";
-import { uploadDocument, type StoredDocument } from "@/lib/document.functions";
+import { uploadDocument } from "@/lib/document.functions";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -38,13 +38,11 @@ function ChatRoom() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [dbReady, setDbReady] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [docFile, setDocFile] = useState<File | null>(null);
-  const [storedDocument, setStoredDocument] = useState<StoredDocument | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -68,12 +66,10 @@ function ChatRoom() {
       .then((items) => {
         if (!cancelled) {
           setChats(items);
-          setDbReady(true);
         }
       })
       .catch((error) => {
         console.error(error);
-        if (!cancelled) setDbReady(false);
       });
 
     return () => {
@@ -88,7 +84,6 @@ function ChatRoom() {
   const handleFile = async (f: File | null) => {
     setFileError(null);
     setUploaded(false);
-    setStoredDocument(null);
 
     if (!f) {
       setAttachedFile(null);
@@ -173,8 +168,6 @@ function ChatRoom() {
       },
     ]);
 
-    let chatId = activeChatId;
-
     if (!chatId) {
       try {
         const created = await createChat({
@@ -182,7 +175,6 @@ function ChatRoom() {
         });
         setChats((items) => [created, ...items]);
         setActiveChatId(created.id);
-        chatId = created.id;
       } catch (error) {
         setFileError((error as Error).message || "Couldn't create the chat.");
         return;
