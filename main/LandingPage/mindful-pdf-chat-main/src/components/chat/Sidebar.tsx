@@ -1,3 +1,4 @@
+import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FileText, History, MoreHorizontal, PanelLeftClose, Pencil, Pin, PinOff, Search, Settings, SquarePen, Trash2, X,
@@ -178,8 +179,6 @@ function SidebarBody(p: Props & { mobile?: boolean }) {
     </div>
   );
 }
-
-import * as React from "react";
 
 export function Sidebar(props: Props) {
   return (
