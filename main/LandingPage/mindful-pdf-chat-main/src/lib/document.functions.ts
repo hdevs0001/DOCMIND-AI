@@ -12,6 +12,22 @@ export type StoredDocument = {
   createdAt: Date;
 };
 
+const isPdfFile = (file: File) =>
+  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+export const listDocuments = createServerFn({ method: "GET" }).handler(async () => {
+  return getDb().document.findMany({
+    select: {
+      id: true,
+      name: true,
+      mimeType: true,
+      size: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+});
+
 export const uploadDocument = createServerFn({ method: "POST" })
   .inputValidator((data: FormData) => {
     if (!(data instanceof FormData)) {
@@ -27,9 +43,7 @@ export const uploadDocument = createServerFn({ method: "POST" })
       throw new Error("No PDF file was provided.");
     }
 
-    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-
-    if (!isPdf) throw new Error("Only PDF files are supported.");
+    if (!isPdfFile(file)) throw new Error("Only PDF files are supported.");
     if (file.size === 0) throw new Error("The PDF is empty.");
     if (file.size > MAX_PDF_SIZE) throw new Error("PDFs must be 25 MB or smaller.");
 
