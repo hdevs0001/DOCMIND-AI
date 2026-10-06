@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: docmind-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: docmind
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - docmind_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  docmind_postgres_data:
