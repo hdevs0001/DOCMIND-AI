@@ -109,8 +109,7 @@ function ChatRoom() {
       const form = new FormData();
       form.append("file", f);
 
-      const saved = await uploadDocument({ data: form });
-      setStoredDocument(saved);
+      await uploadDocument({ data: form });
       setUploaded(true);
     } catch (error) {
       setFileError((error as Error).message || "Couldn't upload this PDF.");
@@ -168,7 +167,7 @@ function ChatRoom() {
       },
     ]);
 
-    if (!chatId) {
+    if (!activeChatId) {
       try {
         const created = await createChat({
           data: { title: q.length > 48 ? q.slice(0, 48) + "…" : q },
@@ -208,7 +207,6 @@ function ChatRoom() {
     setActiveChatId(null);
     setDocFile(null);
     setAttachedFile(null);
-    setStoredDocument(null);
     setUploaded(false);
     setMobileOpen(false);
   };
