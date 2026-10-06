@@ -8,13 +8,32 @@ datasource db {
 }
 
 model Chat {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   title     String
-  pinned    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  pinned    Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  messages  ChatMessage[]
+  documents ChatDocument[]
 
   @@index([updatedAt])
+}
+
+model ChatMessage {
+  id              String   @id @default(cuid())
+  chatId          String
+  role            String
+  content         String
+  attachmentName  String?
+  attachmentSize  Int?
+  citations       Json
+  reasoning       Json
+  thinkingDuration Float   @default(0)
+  createdAt       DateTime @default(now())
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
 }
 
 model Document {
@@ -26,8 +45,21 @@ model Document {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   chunks      DocumentChunk[]
+  chats       ChatDocument[]
 
   @@index([createdAt])
+}
+
+model ChatDocument {
+  chatId     String
+  documentId String
+  createdAt  DateTime @default(now())
+
+  chat     Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, documentId])
+  @@index([documentId])
 }
 
 model DocumentChunk {

@@ -15,5 +15,13 @@ export type ChatMessage =
 
 export type ChatSummary = { id: string; title: string; pinned?: boolean };
 
+export type DocumentSummary = {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  createdAt: string | Date;
+};
+
 export const formatSize = (bytes: number) =>
   bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;

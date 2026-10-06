@@ -9,9 +9,18 @@ import { Greeting, Suggestions } from "@/components/chat/EmptyState";
 import { PromptBox } from "@/components/chat/PromptBox";
 import { MessageList } from "@/components/chat/MessageList";
 import { PdfPreviewPanel } from "@/components/chat/PdfPreviewPanel";
-import type { ChatMessage, ChatSummary } from "@/components/chat/types";
-import { createChat, deleteChat, listChats, renameChat, toggleChatPin } from "@/lib/chat.functions";
-import { uploadDocument } from "@/lib/document.functions";
+import type { ChatMessage, ChatSummary, DocumentSummary } from "@/components/chat/types";
+import {
+  attachDocumentToChat,
+  createChat,
+  deleteChat,
+  getChat,
+  listChats,
+  renameChat,
+  saveChatMessage,
+  toggleChatPin,
+} from "@/lib/chat.functions";
+import { getDocumentFile, listDocuments, uploadDocument } from "@/lib/document.functions";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -27,24 +36,27 @@ export const Route = createFileRoute("/chat")({
   component: ChatRoom,
 });
 
-
-
 const spring = { type: "spring" as const, stiffness: 260, damping: 32, mass: 0.9 };
 const uid = () => Math.random().toString(36).slice(2, 10);
+
+function base64ToFile(base64: string, name: string, mimeType: string) {
+  const binary = atob(base64);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new File([bytes], name, { type: mimeType });
+}
 
 function ChatRoom() {
   const [dark, setDark] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [chats, setChats] = useState<ChatSummary[]>([]);
+  const [documents, setDocuments] = useState<DocumentSummary[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
-  const [docFile, setDocFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploaded, setUploaded] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentSummary | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -62,15 +74,14 @@ function ChatRoom() {
   useEffect(() => {
     let cancelled = false;
 
-    listChats()
-      .then((items) => {
+    Promise.all([listChats(), listDocuments()])
+      .then(([chatItems, documentItems]) => {
         if (!cancelled) {
-          setChats(items);
+          setChats(chatItems);
+          setDocuments(documentItems);
         }
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => console.error(error));
 
     return () => {
       cancelled = true;
@@ -81,64 +92,110 @@ function ChatRoom() {
   const busy = isThinking || isStreaming;
   const chatTitle = chats.find((c) => c.id === activeChatId)?.title ?? "New chat";
 
-  const handleFile = async (f: File | null) => {
-    setFileError(null);
-    setUploaded(false);
+  const selectDocument = async (documentId: string) => {
+    const document = documents.find((item) => item.id === documentId);
+    if (!document) return;
 
-    if (!f) {
-      setAttachedFile(null);
-      setDocFile(null);
-      return;
+    setFileError(null);
+    setSelectedDocument(document);
+
+    if (activeChatId) {
+      try {
+        await attachDocumentToChat({ data: { chatId: activeChatId, documentId } });
+      } catch (error) {
+        setFileError((error as Error).message || "Couldn't attach this document.");
+        return;
+      }
     }
 
-    if (f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf")) {
+    try {
+      const stored = await getDocumentFile({ data: { id: documentId } });
+      setSelectedFile(base64ToFile(stored.base64, stored.name, stored.mimeType));
+    } catch (error) {
+      setSelectedFile(null);
+      setFileError((error as Error).message || "Couldn't load this document.");
+    }
+  };
+
+  const handleUploadDocument = async (file: File | null) => {
+    setFileError(null);
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       setFileError("Only PDF files are supported.");
       return;
     }
 
-    if (f.size === 0) {
-      setFileError("Couldn't read this PDF.");
-      return;
-    }
-
-    setAttachedFile(f);
-    setDocFile(f);
-    setUploading(true);
+    setUploadingDocument(true);
 
     try {
-      const form = new FormData();
-      form.append("file", f);
+      const stored = await uploadDocument({
+        data: (() => {
+          const form = new FormData();
+          form.append("file", file);
+          return form;
+        })(),
+      });
 
-      await uploadDocument({ data: form });
-      setUploaded(true);
+      setDocuments((items) => [stored, ...items.filter((item) => item.id !== stored.id)]);
+      await selectDocument(stored.id);
     } catch (error) {
       setFileError((error as Error).message || "Couldn't upload this PDF.");
-      setAttachedFile(null);
-      setDocFile(null);
     } finally {
-      setUploading(false);
+      setUploadingDocument(false);
     }
   };
 
-  const run = useCallback(async (question: string, file: File | null) => {
+  const run = useCallback(async (question: string, file: File | null, chatId: string) => {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     const started = Date.now();
     setThinkingStartedAt(started);
     setIsThinking(true);
     const id = uid();
+
     try {
       const res = await askDocument(question, file, ctrl.signal);
       const duration = (Date.now() - started) / 1000;
       setIsThinking(false);
+
+      await saveChatMessage({
+        data: {
+          chatId,
+          role: "assistant",
+          content: res.answer,
+          citations: res.citations,
+          reasoning: res.reasoning,
+          thinkingDuration: duration,
+        },
+      });
+
       setIsStreaming(true);
-      setMessages((m) => [...m, { id, role: "assistant", content: "", citations: res.citations, reasoning: res.reasoning, thinkingDuration: duration, streaming: true }]);
+      setMessages((m) => [
+        ...m,
+        {
+          id,
+          role: "assistant",
+          content: "",
+          citations: res.citations,
+          reasoning: res.reasoning,
+          thinkingDuration: duration,
+          streaming: true,
+        },
+      ]);
+
       const words = res.answer.split(/(\s+)/);
       let i = 0;
       streamTimer.current = setInterval(() => {
         i += 2;
         const done = i >= words.length;
-        setMessages((m) => m.map((x) => (x.id === id && x.role === "assistant" ? { ...x, content: words.slice(0, i).join(""), streaming: !done } : x)));
+        setMessages((m) =>
+          m.map((x) =>
+            x.id === id && x.role === "assistant"
+              ? { ...x, content: words.slice(0, i).join(""), streaming: !done }
+              : x,
+          ),
+        );
         if (done) {
           clearInterval(streamTimer.current!);
           setIsStreaming(false);
@@ -147,42 +204,92 @@ function ChatRoom() {
     } catch (e) {
       setIsThinking(false);
       if ((e as Error).name === "AbortError") return;
-      setMessages((m) => [...m, { id, role: "assistant", content: "", citations: [], reasoning: [], thinkingDuration: 0, error: (e as Error).message || "Couldn't read this PDF" }]);
+
+      const errorMessage = (e as Error).message || "Couldn't read this PDF";
+      setMessages((m) => [
+        ...m,
+        {
+          id,
+          role: "assistant",
+          content: "",
+          citations: [],
+          reasoning: [],
+          thinkingDuration: 0,
+          error: errorMessage,
+        },
+      ]);
+
+      await saveChatMessage({
+        data: {
+          chatId,
+          role: "assistant",
+          content: "",
+          citations: [],
+          reasoning: [],
+          thinkingDuration: 0,
+        },
+      });
     }
   }, []);
 
   const send = async (text?: string) => {
     const q = (text ?? input).trim();
-    if (!q || busy || uploading) return;
+    if (!q || busy || !selectedDocument) return;
 
-    const file = attachedFile ?? docFile;
+    let chatId = activeChatId;
 
-    setMessages((m) => [
-      ...m,
-      {
-        id: uid(),
-        role: "user",
-        content: q,
-        attachment: attachedFile ? { name: attachedFile.name, size: attachedFile.size } : undefined,
-      },
-    ]);
-
-    if (!activeChatId) {
+    if (!chatId) {
       try {
         const created = await createChat({
-          data: { title: q.length > 48 ? q.slice(0, 48) + "…" : q },
+          data: {
+            title: q.length > 48 ? q.slice(0, 48) + "…" : q,
+            documentId: selectedDocument.id,
+          },
         });
         setChats((items) => [created, ...items]);
         setActiveChatId(created.id);
+        chatId = created.id;
       } catch (error) {
         setFileError((error as Error).message || "Couldn't create the chat.");
         return;
       }
+    } else {
+      try {
+        await attachDocumentToChat({ data: { chatId, documentId: selectedDocument.id } });
+      } catch (error) {
+        setFileError((error as Error).message || "Couldn't attach this document.");
+        return;
+      }
     }
 
+    const userMessage: ChatMessage = {
+      id: uid(),
+      role: "user",
+      content: q,
+      attachment: { name: selectedDocument.name, size: selectedDocument.size },
+    };
+
+    setMessages((m) => [...m, userMessage]);
     setInput("");
-    setAttachedFile(null);
-    void run(q, file);
+
+    try {
+      await saveChatMessage({
+        data: {
+          chatId,
+          role: "user",
+          content: q,
+          attachment: userMessage.attachment,
+          citations: [],
+          reasoning: [],
+          thinkingDuration: 0,
+        },
+      });
+    } catch (error) {
+      setFileError((error as Error).message || "Couldn't save your message.");
+      return;
+    }
+
+    void run(q, selectedFile, chatId);
   };
 
   const stop = () => {
@@ -194,20 +301,44 @@ function ChatRoom() {
   };
 
   const regenerate = () => {
-    if (busy) return;
+    if (busy || !activeChatId) return;
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     if (!lastUser) return;
     setMessages((m) => (m[m.length - 1]?.role === "assistant" ? m.slice(0, -1) : m));
-    run(lastUser.content, docFile);
+    void run(lastUser.content, selectedFile, activeChatId);
   };
 
-  const newChat = () => {
+  const openChat = async (id: string) => {
+    stop();
+    setFileError(null);
+
+    try {
+      const chat = await getChat({ data: { id } });
+      setActiveChatId(chat.id);
+      setMessages(chat.messages);
+
+      const doc = chat.documents[0] ?? null;
+      setSelectedDocument(doc);
+
+      if (doc) {
+        const stored = await getDocumentFile({ data: { id: doc.id } });
+        setSelectedFile(base64ToFile(stored.base64, stored.name, stored.mimeType));
+      } else {
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      setFileError((error as Error).message || "Couldn't open this chat.");
+    } finally {
+      setMobileOpen(false);
+    }
+  };
+
+  const stopAndNewChat = () => {
     stop();
     setMessages([]);
     setActiveChatId(null);
-    setDocFile(null);
-    setAttachedFile(null);
-    setUploaded(false);
+    setSelectedDocument(null);
+    setSelectedFile(null);
     setMobileOpen(false);
   };
 
@@ -224,15 +355,21 @@ function ChatRoom() {
   const handleDelete = async (id: string) => {
     await deleteChat({ data: { id } });
     setChats((items) => items.filter((chat) => chat.id !== id));
-    if (id === activeChatId) newChat();
+    if (id === activeChatId) stopAndNewChat();
   };
 
   return (
     <div
       className="relative flex h-dvh w-full overflow-hidden bg-background"
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-      onDragLeave={(e) => { if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false); }}
-      onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files?.[0] ?? null); }}
+      onDragLeave={(e) => {
+        if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        void handleUploadDocument(e.dataTransfer.files?.[0] ?? null);
+      }}
     >
       <Sidebar
         open={sidebarOpen}
@@ -240,12 +377,15 @@ function ChatRoom() {
         onClose={() => setSidebarOpen(false)}
         onCloseMobile={() => setMobileOpen(false)}
         chats={chats}
+        documents={documents}
         activeChatId={activeChatId}
-        onSelect={(id) => { stop(); setActiveChatId(id); setMessages([]); setMobileOpen(false); }}
-        onNewChat={newChat}
+        onSelect={(id) => void openChat(id)}
+        onNewChat={stopAndNewChat}
         onRename={handleRename}
         onTogglePin={(id) => void handleTogglePin(id)}
         onDelete={(id) => void handleDelete(id)}
+        onUploadDocument={(file) => void handleUploadDocument(file)}
+        uploadingDocument={uploadingDocument}
       />
 
       <main className="relative flex min-w-0 flex-1 flex-col">
@@ -288,17 +428,15 @@ function ChatRoom() {
               <PromptBox
                 value={input}
                 onChange={setInput}
-                onSubmit={() => send()}
+                onSubmit={() => void send()}
                 onStop={stop}
                 busy={busy}
-                file={attachedFile}
-                onFile={(file) => void handleFile(file)}
-                fileError={fileError}
-                uploading={uploading}
-                uploaded={uploaded}
+                documents={documents}
+                selectedDocument={selectedDocument}
+                onSelectDocument={(id) => void selectDocument(id)}
               />
             </motion.div>
-            <AnimatePresence>{!inChat && <Suggestions key="sugg" onPick={(s) => send(s)} />}</AnimatePresence>
+            <AnimatePresence>{!inChat && <Suggestions key="sugg" onPick={(s) => void send(s)} />}</AnimatePresence>
             {inChat && (
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-2 text-center text-xs text-muted-foreground">
                 DocMindAI answers only from your document. Please verify important information.
@@ -310,7 +448,7 @@ function ChatRoom() {
         </LayoutGroup>
       </main>
 
-      <PdfPreviewPanel page={previewPage} fileName={docFile?.name ?? "Document.pdf"} onClose={() => setPreviewPage(null)} />
+      <PdfPreviewPanel page={previewPage} fileName={selectedDocument?.name ?? "Document.pdf"} onClose={() => setPreviewPage(null)} />
 
       <AnimatePresence>
         {dragging && (
