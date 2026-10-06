@@ -113,7 +113,7 @@ export function PromptBox({ value, onChange, onSubmit, onStop, busy, file, onFil
         ) : (
           <button
             aria-label="Send message"
-            disabled={!canSend}
+            disabled={!canSend || uploading}
             onClick={onSubmit}
             className={cn(
               "grid size-9 place-items-center rounded-full bg-brand text-primary-foreground transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
