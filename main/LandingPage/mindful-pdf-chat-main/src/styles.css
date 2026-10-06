@@ -7,20 +7,17 @@
 /*
  * Design system definition.
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Merged: DocMindAI chat design system (base) + pixel-perfect additions.
+ * Rule: if a token/utility existed in the chat file, it was kept unchanged.
+ * New from pixel-perfect: --font-display, --violet, --glass, --glass-strong,
+ * --shadow-glow, --blob-opacity, glass/glass-strong/bg-brand/text-brand/
+ * shadow-glow/blob/shimmer-text utilities, shimmer keyframes, .prose-chat.
  */
 
 @theme inline {
   --font-sans: "Inter", sans-serif;
   --font-heading: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -36,6 +33,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-violet: var(--violet);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -62,6 +60,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-surface: var(--surface);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
   --color-cyan: var(--cyan);
   --color-success: var(--success);
   --background-image-gradient-brand: var(--gradient-brand);
@@ -79,6 +79,7 @@
   --popover-foreground: oklch(0.18 0.035 275);
   --primary: oklch(0.56 0.23 278);
   --primary-foreground: oklch(0.99 0.005 270);
+  --violet: oklch(0.606 0.25 292.7); /* #8B5CF6 */
   --secondary: oklch(0.95 0.018 270);
   --secondary-foreground: oklch(0.23 0.045 275);
   --muted: oklch(0.95 0.012 270);
@@ -91,11 +92,16 @@
   --input: oklch(0.88 0.022 270);
   --ring: oklch(0.62 0.2 278);
   --surface: oklch(1 0 0 / 72%);
+  --glass: oklch(1 0 0 / 65%);
+  --glass-strong: oklch(1 0 0 / 85%);
   --cyan: oklch(0.7 0.14 215);
   --success: oklch(0.62 0.14 160);
+  --blob-opacity: 0.25;
   --gradient-brand: linear-gradient(135deg, oklch(0.61 0.22 278), oklch(0.58 0.24 300));
   --shadow-brand: 0 8px 24px oklch(0.55 0.23 285 / 24%);
   --shadow-brand-lg: 0 12px 36px oklch(0.55 0.23 285 / 38%);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 40%, transparent),
+    0 8px 30px -6px color-mix(in oklab, var(--violet) 60%, transparent);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -120,6 +126,7 @@
   --popover-foreground: oklch(0.984 0.003 247.858);
   --primary: oklch(0.66 0.22 278);
   --primary-foreground: oklch(0.985 0.005 270);
+  --violet: oklch(0.606 0.25 292.7);
   --secondary: oklch(0.25 0.035 270);
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.23 0.03 270);
@@ -132,8 +139,11 @@
   --input: oklch(0.75 0.05 275 / 22%);
   --ring: oklch(0.69 0.18 278);
   --surface: oklch(0.2 0.03 270 / 68%);
+  --glass: oklch(1 0 0 / 4%);
+  --glass-strong: oklch(0.2 0.025 270 / 85%);
   --cyan: oklch(0.79 0.14 215);
   --success: oklch(0.75 0.14 160);
+  --blob-opacity: 0.35;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -163,6 +173,7 @@
     font-family: var(--font-sans);
     letter-spacing: 0;
     margin: 0;
+    -webkit-font-smoothing: antialiased;
   }
   h1,
   h2,
@@ -179,6 +190,7 @@
   }
 }
 
+/* ── Utilities from chat file ── */
 @utility page-shell {
   width: min(1180px, calc(100% - 2rem));
   margin-inline: auto;
@@ -220,6 +232,69 @@
     box-shadow: 0 18px 50px oklch(0.08 0.03 270 / 16%);
   }
 }
+
+/* ── Utilities added from pixel-perfect ── */
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px) saturate(140%);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+
+@utility bg-brand {
+  background-image: var(--gradient-brand);
+}
+
+@utility text-brand {
+  background-image: linear-gradient(135deg, var(--primary), var(--violet) 60%, var(--cyan));
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+@utility blob {
+  background: radial-gradient(circle at 30% 30%, var(--primary), transparent 60%),
+    radial-gradient(circle at 70% 60%, var(--violet), transparent 60%),
+    radial-gradient(circle at 50% 80%, var(--cyan), transparent 55%);
+  filter: blur(80px);
+  opacity: var(--blob-opacity);
+}
+
+@utility shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 35%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 65%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -150% 0; }
+}
+
+.prose-chat p { margin: 0.6em 0; line-height: 1.7; }
+.prose-chat ul { list-style: disc; padding-left: 1.4em; margin: 0.6em 0; }
+.prose-chat ol { list-style: decimal; padding-left: 1.4em; margin: 0.6em 0; }
+.prose-chat li { margin: 0.25em 0; }
+.prose-chat strong { font-weight: 600; color: var(--foreground); }
+.prose-chat code { background: var(--muted); padding: 0.1em 0.35em; border-radius: 6px; font-size: 0.9em; }
+.prose-chat pre { background: var(--muted); padding: 0.9em; border-radius: 12px; overflow-x: auto; }
 
 @layer components {
   .site-header {

@@ -42,6 +42,7 @@ import {
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
 
 const navLinks = [
   ["Features", "#features"],
@@ -202,11 +203,13 @@ function Header() {
           <a href="#demo" className="nav-link px-2">
             Log in
           </a>
-          <Button asChild variant="brand" size="sm">
-            <a href="#upload">
-              Get started <ArrowRight />
-            </a>
-          </Button>
+          <Link to="/chat">
+            <Button asChild variant="brand" size="sm">
+              <a href="#upload">
+                Get started <ArrowRight />
+              </a>
+            </Button>
+          </Link>
         </div>
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle dark={dark} onToggle={toggleTheme} />
