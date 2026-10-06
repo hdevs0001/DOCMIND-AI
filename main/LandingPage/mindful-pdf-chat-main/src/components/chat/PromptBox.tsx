@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, FileText, Plus, Square, X } from "lucide-react";
+import { ArrowUp, CheckCircle2, FileText, Loader2, Plus, Square, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatSize } from "./types";
 
@@ -13,9 +13,11 @@ type Props = {
   file: File | null;
   onFile: (f: File | null) => void;
   fileError: string | null;
+  uploading: boolean;
+  uploaded: boolean;
 };
 
-export function PromptBox({ value, onChange, onSubmit, onStop, busy, file, onFile, fileError }: Props) {
+export function PromptBox({ value, onChange, onSubmit, onStop, busy, file, onFile, fileError, uploading, uploaded }: Props) {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -44,6 +46,16 @@ export function PromptBox({ value, onChange, onSubmit, onStop, busy, file, onFil
               <span className="grid size-7 place-items-center rounded-lg bg-brand text-primary-foreground"><FileText size={14} /></span>
               <span className="max-w-[180px] truncate text-sm">{file.name}</span>
               <span className="text-xs text-muted-foreground">{formatSize(file.size)}</span>
+              {uploading && (
+                <span className="inline-flex items-center gap-1 text-xs text-cyan">
+                  <Loader2 size={12} className="animate-spin" /> Saving
+                </span>
+              )}
+              {!uploading && uploaded && (
+                <span className="inline-flex items-center gap-1 text-xs text-success">
+                  <CheckCircle2 size={12} /> Stored
+                </span>
+              )}
               <button
                 aria-label="Remove attached PDF"
                 onClick={() => onFile(null)}
