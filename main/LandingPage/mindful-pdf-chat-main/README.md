@@ -128,3 +128,46 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+
+## Local database setup
+
+The chat workspace now persists chat names and uploaded PDFs in PostgreSQL.
+
+### 1. Start PostgreSQL + pgvector
+
+```bash
+docker compose -f docker-compose.db.yml up -d
+```
+
+### 2. Configure the database
+
+Copy `.env.example` to `.env`.
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/docmind?schema=public"
+```
+
+### 3. Install the new dependencies
+
+```bash
+npm install
+```
+
+Then generate Prisma's client and apply the migration:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+The app uses PostgreSQL with the `vector` extension, so a separate vector database is not needed. The `DocumentChunk.embedding` field is ready for the LangChain/pgvector ingestion stage.
+
+### Current document flow
+
+1. User selects or drops a PDF.
+2. The UI shows **Saving** with a spinner.
+3. TanStack Start sends the PDF to a server function.
+4. Prisma stores the PDF bytes and metadata in PostgreSQL.
+5. The UI changes to **Stored**.
+6. The next RAG step will extract, chunk, embed, and store `DocumentChunk` vectors with LangChain.
