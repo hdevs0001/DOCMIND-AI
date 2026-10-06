@@ -1,15 +1,15 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  FileText, History, MoreHorizontal, PanelLeftClose, Pencil, Pin, PinOff, Search, Settings, SquarePen, Trash2, X,
+  FileText, FileUp, History, MoreHorizontal, PanelLeftClose, Pencil, Pin, PinOff, Search, Settings, SquarePen, Trash2, Upload, X,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { formatSize, type ChatSummary, type DocumentSummary } from "./types";
 import { LogoMark } from "./Logo";
-import type { ChatSummary } from "./types";
 
 type Props = {
   open: boolean;
@@ -17,12 +17,15 @@ type Props = {
   onClose: () => void;
   onCloseMobile: () => void;
   chats: ChatSummary[];
+  documents: DocumentSummary[];
   activeChatId: string | null;
   onSelect: (id: string) => void;
   onNewChat: () => void;
   onRename: (id: string, title: string) => Promise<void>;
   onTogglePin: (id: string) => void;
   onDelete: (id: string) => void;
+  onUploadDocument: (file: File | null) => void;
+  uploadingDocument: boolean;
 };
 
 const iconBtn =
@@ -31,6 +34,7 @@ const iconBtn =
 function SidebarBody(p: Props & { mobile?: boolean }) {
   const pinned = p.chats.filter((c) => c.pinned);
   const recent = p.chats.filter((c) => !c.pinned);
+  const fileRef = React.useRef<HTMLInputElement>(null);
 
   const Row = ({ c }: { c: ChatSummary }) => {
     const [editing, setEditing] = React.useState(false);
@@ -144,11 +148,49 @@ function SidebarBody(p: Props & { mobile?: boolean }) {
         >
           <SquarePen size={16} /> New chat
         </button>
-        {[{ icon: FileText, label: "Documents" }, { icon: History, label: "History" }].map(({ icon: I, label }) => (
-          <button key={label} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <I size={16} /> {label}
-          </button>
-        ))}
+
+        <div className="rounded-2xl border border-border/70 bg-sidebar-accent/40 p-2">
+          <div className="flex items-center gap-2 px-2 pb-2">
+            <FileText size={16} className="text-primary" />
+            <span className="text-sm font-medium">Documents</span>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              className="hidden"
+              onChange={(e) => {
+                p.onUploadDocument(e.target.files?.[0] ?? null);
+                e.target.value = "";
+              }}
+            />
+            <button
+              className="ml-auto inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-primary transition hover:bg-accent"
+              onClick={() => fileRef.current?.click()}
+              disabled={p.uploadingDocument}
+            >
+              {p.uploadingDocument ? <FileUp size={13} className="animate-pulse" /> : <Upload size={13} />}
+              {p.uploadingDocument ? "Saving..." : "Upload"}
+            </button>
+          </div>
+
+          {p.documents.length === 0 ? (
+            <p className="px-2 py-2 text-xs text-muted-foreground">No PDFs stored yet.</p>
+          ) : (
+            <ul className="flex max-h-44 flex-col gap-1 overflow-y-auto">
+              {p.documents.map((document) => (
+                <li key={document.id} className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-muted-foreground">
+                  <FileText size={13} className="shrink-0" />
+                  <span className="min-w-0 flex-1 truncate" title={document.name}>{document.name}</span>
+                  <span className="shrink-0 text-[10px] text-muted-foreground/70">{formatSize(document.size)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <button className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <History size={16} /> History
+        </button>
       </nav>
 
       <div className="-mx-1 flex-1 overflow-y-auto px-1">
